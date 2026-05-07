@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- The main background color of your bar -->
+    <solid android:color="@color/b_background_dark" />
+
+    <!-- Setting a very high radius (like 100dp) ensures it stays
+         pill-shaped even if the bar gets taller with more text -->
+    <corners android:radius="100dp" />
+
+    <!-- Optional: Add a subtle border to match your search bar style -->
+    <stroke
+        android:width="0.5dp"
+        android:color="#20FFFFFF" />
+</shape>

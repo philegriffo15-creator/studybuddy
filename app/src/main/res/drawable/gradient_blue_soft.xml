@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <!-- This creates the gradient -->
+            <gradient
+                android:angle="135"
+                android:endColor="#E1F5FE"
+                android:startColor="#B3E5FC"
+                android:type="linear" />
+            <!-- This matches the corner radius of our CardView -->
+            <corners android:radius="24dp" />
+        </shape>
+    </item>
+</selector>

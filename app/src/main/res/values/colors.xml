@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ... your other colors ... -->
+
+    <!-- Main Background -->
+    <color name="b_background_dark">#18191D</color>
+
+    <!-- Red Accent Color -->
+    <color name="b_accent_red">#FF4D4D</color>
+    <color name="b_background_deep">#121629</color> <!-- Deep Midnight from Image B -->
+    <color name="b_purple_bright">#8B5CF6</color>  <!-- Action Purple -->
+    <color name="b_pink_accent">#E91E63</color>    <!-- Highlight Pink from Image B -->
+    <color name="b_glass_stroke">#33FFFFFF</color>
+    <color name="b_purple">#A855F7</color>
+    <color name="b_green">#22C55E</color>
+    <color name="white_icon">#FFFFFF</color>
+    <color name="white">#FFFFFF</color>
+    <color name="light_gray">#F5F7FA</color>
+    <color name="text_main">#2D3748</color>
+    <color name="text_sub">#718096</color>
+    <!-- Message Bubble Colors -->
+    <color name="b_bubble_red_bright">#FF4F5E</color>
+    <color name="b_bubble_grey">#2A2D35</color>
+
+    <!-- Component Backgrounds -->
+    <color name="b_card_bg">#1F2440</color>
+    <color name="b_stroke_color">#3D4571</color>
+
+    <!-- Text and Icon Colors -->
+    <color name="b_text_light">#E0E0E0</color>
+    <color name="b_text_grey">#8A8D91</color>
+</resources>

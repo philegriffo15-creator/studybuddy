@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="course_list">
+        <item>Computer Science</item>
+        <item>Information Technology</item>
+        <item>Software Engineering</item>
+        <item>Business Administration</item>
+        <item>Psychology</item>
+        <item>Mechanical Engineering</item>
+        <item>Electrical Engineering</item>
+        <item>Civil Engineering</item>
+        <item>Nursing</item>
+        <item>Accounting</item>
+        <item>Marketing</item>
+        <item>Graphic Design</item>
+        <item>Architecture</item>
+        <item>Education</item>
+        <item>Law</item>
+        <item>Medicine</item>
+    </string-array>
+</resources>

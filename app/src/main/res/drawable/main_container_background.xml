@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#1F2440" /> <!-- Slightly lighter than main background for contrast -->
+    <corners android:radius="24dp" />
+
+    <stroke
+        android:width="1dp"
+        android:color="#3D4571" /> <!-- Subtle border from Image B -->
+</shape>

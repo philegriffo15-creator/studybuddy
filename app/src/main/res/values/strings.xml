@@ -1,0 +1,80 @@
+<resources>
+    <string name="app_name">StudyBuddy</string>
+    <string name="search_hint">Search</string>
+    <string name="message_hint">Type message...</string>
+    <string name="desc_back">Back</string>
+    <string name="desc_profile">Profile Picture</string>
+    <string name="desc_add">Add Contact</string>
+    <string name="desc_gallery">Open Gallery</string>
+    <string name="desc_camera">Open Camera</string>
+    <string name="desc_speak">Voice Message</string>
+    <string name="desc_options">More Options</string>
+
+    <!-- Authentication Strings -->
+    <string name="create_account">Create Account</string>
+    <string name="signup_description">Your ultimate academic companion for collaborative learning and organized study sessions.</string>
+    <string name="full_name">Full name</string>
+    <string name="hint_full_name">John Doe</string>
+    <string name="email_address">Email address</string>
+    <string name="hint_email">example@gmail.com</string>
+    <string name="password">Password</string>
+    <string name="hint_password">••••••••</string>
+    <string name="your_course">Your course</string>
+    <string name="hint_course">e.g. Computer Science</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="already_have_account_login">Already have an account? Login</string>
+
+    <string name="welcome_back">Welcome Back</string>
+    <string name="login_description">Login to continue your progress and access your collaborative study materials.</string>
+    <string name="login">Login</string>
+    <string name="dont_have_account_signup">Don\'t have an account? Sign up</string>
+
+    <!-- Toasts and Messages -->
+    <string name="error_fill_all_fields">Please fill all fields</string>
+    <string name="error_password_length">Password must be at least 6 characters</string>
+    <string name="success_account_created">Account Created Successfully</string>
+    <string name="error_database">Database Error: %1$s</string>
+    <string name="error_signup_failed">Signup Failed: %1$s</string>
+    <string name="error_login_failed">Login Failed: %1$s</string>
+    <string name="private_chat">Private Chat</string>
+    <string name="enter_study_room">Enter Study Room</string>
+    <string name="your_workspace">Your Workspace</string>
+    <string name="workspace_description">Access your notes and manage your schedule in one place.</string>
+    <string name="new_activity">New Activity</string>
+    <string name="notification_text">2 new study materials added today!</string>
+    <string name="pdf_notes">PDF Notes</string>
+    <string name="planner">Planner</string>
+    <string name="select_buddy">Select a Buddy</string>
+    <string name="online">Online</string>
+    <string name="type_message_hint">Type a message...</string>
+    <string name="voice">Voice</string>
+    <string name="play_voice_description">Play Voice Message</string>
+    <string name="image_message_description">Image Message</string>
+    <string name="logout">Logout</string>
+    <string name="logout_confirm_msg">Do you Agree?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="tasks_for_date">Tasks for %1$s</string>
+    <string name="new_study_goal">New Study Goal</string>
+    <string name="hint_subject">Subject (e.g. Math)</string>
+    <string name="hint_goal">Goal (e.g. Chapter 5)</string>
+    <string name="hint_time">Time (e.g. 10:00 AM)</string>
+    <string name="add">Add</string>
+    <string name="cancel">Cancel</string>
+    <string name="error_fill_subject_goal">Please fill subject and goal</string>
+    <string name="group_task_shared">Group Task (Shared)</string>
+    <string name="group_tag">GROUP</string>
+    <string name="progress">Progress</string>
+    <string name="study_streak">Study Streak</string>
+    <string name="days_count">%1$d Days</string>
+    <string name="percent_format">%1$d%%</string>
+    <string name="streak">Streak</string>
+    <string name="course_label">Course: %1$s</string>
+    <string name="loading">Loading...</string>
+    <string name="daily_motivation">DAILY MOTIVATION</string>
+    <string name="motivation_title">🌟 StudyBuddy Motivation</string>
+    <string name="lets_go">Let\'s Go!</string>
+    <string name="maybe_later">Maybe Later</string>
+    <string name="motivation_prompt">%1$s\n\nReady to check your recent activities?</string>
+    <string name="study_hub_title">StudyHub</string>
+</resources>

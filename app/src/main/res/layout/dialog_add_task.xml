@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="#121629">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New Study Goal"
+        android:textColor="#FFFFFF"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="24dp" />
+
+    <EditText
+        android:id="@+id/etSubject"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:hint="Subject (e.g. Math)"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#A0A0A0"
+        android:background="@drawable/input_field_background"
+        android:paddingHorizontal="16dp"
+        android:layout_marginBottom="16dp" />
+
+    <EditText
+        android:id="@+id/etGoal"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:hint="Goal (e.g. Chapter 5)"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#A0A0A0"
+        android:background="@drawable/input_field_background"
+        android:paddingHorizontal="16dp"
+        android:layout_marginBottom="16dp" />
+
+    <EditText
+        android:id="@+id/etTime"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:hint="Time (e.g. 10:00 AM)"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#A0A0A0"
+        android:background="@drawable/input_field_background"
+        android:paddingHorizontal="16dp"
+        android:layout_marginBottom="16dp" />
+
+    <CheckBox
+        android:id="@+id/cbIsGroupTask"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/group_task_shared"
+        android:textColor="#FFFFFF" />
+
+</LinearLayout>
