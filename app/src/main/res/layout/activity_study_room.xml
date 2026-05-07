@@ -63,6 +63,9 @@
         app:cardCornerRadius="20dp"
         app:strokeColor="@color/b_stroke_color"
         app:strokeWidth="1dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?attr/selectableItemBackground"
         app:layout_constraintTop_toBottomOf="@id/roomHeader"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -73,16 +76,30 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <TextView
-                android:layout_width="wrap_content"
+            <RelativeLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Study Buddies in Room"
-                android:textColor="#A0A0A0"
-                android:textSize="12sp"
-                android:layout_marginBottom="12dp"/>
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:id="@+id/tvParticipantsLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Study Buddies in Room"
+                    android:textColor="#A0A0A0"
+                    android:textSize="12sp" />
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_alignParentEnd="true"
+                    android:src="@drawable/ic_notifications"
+                    app:tint="#A0A0A0" />
+            </RelativeLayout>
 
             <!-- Horizontal list of avatars -->
             <LinearLayout
+                android:id="@+id/layoutParticipantsAvatars"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
@@ -95,7 +112,19 @@
                     app:strokeColor="#E91E63"
                     app:strokeWidth="2dp"/>
 
-                <!-- If you add more ShapeableImageViews here, they will now sit side-by-side -->
+                <TextView
+                    android:id="@+id/tvMoreBuddies"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="-10dp"
+                    android:background="@drawable/badge_background"
+                    android:backgroundTint="#444444"
+                    android:gravity="center"
+                    android:text="+2"
+                    android:textColor="#FFFFFF"
+                    android:textSize="12sp"
+                    android:visibility="gone"/>
+
             </LinearLayout>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
