@@ -267,20 +267,22 @@ class MessageAdapter(
         }
 
         // Add more reactions (like a full keypad)
+        // Add more reactions (like a full keypad)
         val reactionsContainer = view.findViewById<View>(R.id.reactLike).parent as? ViewGroup
-        val btnMoreReactions = TextView(context).apply {
-            text = "➕"
-            textSize = 24f
-            setPadding(20, 0, 20, 0)
-            isClickable = true
-            isFocusable = true
-            setBackgroundResource(android.R.drawable.list_selector_background)
-        }
-        reactionsContainer?.addView(btnMoreReactions)
-
-        btnMoreReactions.setOnClickListener {
-            dialog.dismiss()
-            showFullEmojiPicker(context, message)
+        if (reactionsContainer != null) {
+            val btnMoreReactions = TextView(context).apply {
+                text = "➕"
+                textSize = 24f
+                setPadding(20, 0, 20, 0)
+                isClickable = true
+                isFocusable = true
+                setBackgroundResource(android.R.drawable.list_selector_background)
+            }
+            btnMoreReactions.setOnClickListener {
+                dialog.dismiss()
+                showFullEmojiPicker(context, message)
+            }
+            reactionsContainer.addView(btnMoreReactions)
         }
 
         dialog.setContentView(view)

@@ -27,7 +27,7 @@ import java.io.IOException
 class StudyRoomActivity : AppCompatActivity() {
 
     private var database: DatabaseReference? = null
-    private val participantsRef = FirebaseDatabase.getInstance().getReference("room_participants")
+    private var currentParticipantsRef: DatabaseReference? = null
     private val usersRef = FirebaseDatabase.getInstance().getReference("Users")
     private val storage = FirebaseStorage.getInstance().getReference("room_attachments")
     private val currentUser = FirebaseAuth.getInstance().currentUser?.uid
@@ -73,7 +73,7 @@ class StudyRoomActivity : AppCompatActivity() {
         val rvParticipantsHorizontal = findViewById<RecyclerView>(R.id.rvParticipantsHorizontal)
         val btnBack = findViewById<ImageButton>(R.id.btnBack)
         val cardParticipants = findViewById<MaterialCardView>(R.id.cardParticipants)
-        toggleGroup = findViewById<com.google.android.material.button.MaterialButtonToggleGroup>(R.id.toggleGroupChannel)
+        toggleGroup = findViewById(R.id.toggleGroupChannel)
         val layoutCancel = findViewById<View>(R.id.layoutSlideToCancel)
         val layoutSendVoice = findViewById<View>(R.id.layoutSendVoice)
 
@@ -90,7 +90,6 @@ class StudyRoomActivity : AppCompatActivity() {
             }
         }
 
-        val toggleGroup = findViewById<MaterialButtonToggleGroup>(R.id.toggleGroupChannel)
         val replyLayout = findViewById<androidx.constraintlayout.widget.ConstraintLayout>(R.id.replyLayout)
         val tvReplyName = findViewById<TextView>(R.id.tvReplyName)
         val tvReplyMessage = findViewById<TextView>(R.id.tvReplyMessage)
@@ -170,9 +169,6 @@ class StudyRoomActivity : AppCompatActivity() {
 
         // Fetch User Info
         currentUser?.let { uid ->
-            participantsRef.child(uid).setValue(true)
-            participantsRef.child(uid).onDisconnect().removeValue()
-
             usersRef.child(uid).get().addOnSuccessListener { snapshot ->
                 val user = snapshot.getValue(User::class.java)
                 currentUserName = user?.fullName
@@ -202,11 +198,12 @@ class StudyRoomActivity : AppCompatActivity() {
                         showPaymentDialog()
                         
                         // Temporarily uncheck Global to prevent entering without paying
+                        // and switch back to course
                         group.post {
                             group.check(R.id.btnChannelCourse)
                         }
                     }
-                } else {
+                } else if (checkedId == R.id.btnChannelCourse) {
                     switchChannel("course")
                 }
             }
@@ -278,21 +275,73 @@ class StudyRoomActivity : AppCompatActivity() {
 
     private fun switchChannel(type: String) {
         currentChannel = type
-        val path = if (type == "course" && !userCourse.isNullOrEmpty()) {
-            "room_messages/course_${userCourse?.replace(" ", "_")}"
+        val sanitizedCourse = userCourse?.replace(" ", "_") ?: "General"
+        
+        val msgPath = if (type == "course") {
+            "room_messages/course_$sanitizedCourse"
         } else {
             "room_messages/global"
         }
+
+        val partPath = if (type == "course") {
+            "room_participants/course_$sanitizedCourse"
+        } else {
+            "room_participants/global"
+        }
         
-        // Remove old listener if any
+        // 1. Remove old message listener
         database?.removeEventListener(messageListener)
         
-        database = FirebaseDatabase.getInstance().getReference(path)
-        messageAdapter.updatePath(path)
+        // 2. Unregister from old participant path
+        currentParticipantsRef?.child(currentUser ?: "")?.removeValue()
+        currentParticipantsRef?.removeEventListener(participantListener)
+
+        // 3. Setup new paths
+        database = FirebaseDatabase.getInstance().getReference(msgPath)
+        currentParticipantsRef = FirebaseDatabase.getInstance().getReference(partPath)
+
+        // 4. Register in new room
+        currentUser?.let { uid ->
+            currentParticipantsRef?.child(uid)?.setValue(true)
+            currentParticipantsRef?.child(uid)?.onDisconnect()?.removeValue()
+        }
+
+        // 5. Load data
+        messageAdapter.updatePath(msgPath)
         loadMessages()
+        loadParticipants(participantAdapter)
         
-        val channelName = if (type == "course") "Course Chat (${userCourse ?: "General"})" else "Global Chat (Premium)"
+        val channelName = if (type == "course") "Course Chat ($userCourse)" else "Global Chat (Premium)"
         Toast.makeText(this, "Switched to $channelName", Toast.LENGTH_SHORT).show()
+    }
+
+    private val participantListener = object : ValueEventListener {
+        override fun onDataChange(snapshot: DataSnapshot) {
+            participantList.clear()
+            val totalCount = snapshot.childrenCount
+            if (totalCount == 0L) {
+                participantAdapter.notifyDataSetChanged()
+                return
+            }
+            
+            var loadedCount = 0
+            for (child in snapshot.children) {
+                val uid = child.key ?: continue
+                usersRef.child(uid).get().addOnSuccessListener { userSnap ->
+                    val user = userSnap.getValue(User::class.java)?.copy(uid = uid)
+                    if (user != null && uid != currentUser) {
+                        if (!participantList.any { it.uid == uid }) {
+                            participantList.add(user)
+                        }
+                    }
+                    loadedCount++
+                    if (loadedCount.toLong() == totalCount) {
+                        participantAdapter.notifyDataSetChanged()
+                    }
+                }
+            }
+        }
+        override fun onCancelled(error: DatabaseError) {}
     }
 
     private val messageListener = object : ValueEventListener {
@@ -333,55 +382,71 @@ class StudyRoomActivity : AppCompatActivity() {
     }
 
     private fun simulateMpesaPush(phone: String) {
-        val progressDialog = android.app.ProgressDialog(this)
-        progressDialog.setMessage("Requesting STK Push to $phone...")
-        progressDialog.setCancelable(false)
-        progressDialog.show()
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
+            .setMessage("Requesting STK Push to $phone...")
+            .setCancelable(false)
+            .create()
+        dialog.show()
 
         // Phase 1: Requesting STK Push
         android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-            progressDialog.dismiss()
-            
-            // Show a PIN entry dialog to simulate a real M-Pesa prompt
-            val pinEntryView = layoutInflater.inflate(R.layout.dialog_mpesa_pin, null)
-            val etPin = pinEntryView.findViewById<EditText>(R.id.etMpesaPin)
+            if (!isFinishing && !isDestroyed) {
+                dialog.dismiss()
+                
+                // Show a PIN entry dialog to simulate a real M-Pesa prompt
+                val pinEntryView = layoutInflater.inflate(R.layout.dialog_mpesa_pin, null)
+                val etPin = pinEntryView.findViewById<EditText>(R.id.etMpesaPin)
 
-            androidx.appcompat.app.AlertDialog.Builder(this)
-                .setTitle("M-PESA SIMULATOR")
-                .setView(pinEntryView)
-                .setCancelable(false)
-                .setPositiveButton("Enter PIN") { dialog, which ->
+                val pinDialog = androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setTitle("M-PESA SIMULATOR")
+                    .setView(pinEntryView)
+                    .setCancelable(false)
+                    .setPositiveButton("Enter PIN", null) // Set to null to override click behavior
+                    .setNegativeButton("Cancel") { d, _ ->
+                        Toast.makeText(this, "Transaction cancelled by user", Toast.LENGTH_SHORT).show()
+                        d.dismiss()
+                    }
+                    .create()
+
+                pinDialog.show()
+
+                // Override the button to prevent auto-dismiss if PIN is empty
+                pinDialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener {
                     val pin = etPin.text.toString()
-                    if (pin == "1234") { // Only proceed if correct PIN entered
+                    if (pin == "1234") {
+                        pinDialog.dismiss()
                         verifyPayment(phone)
+                    } else if (pin.isEmpty()) {
+                        etPin.error = "Enter PIN"
                     } else {
-                        // Crucial fix: Do not call verifyPayment if PIN is wrong
-                        Toast.makeText(this, "Incorrect PIN. Transaction failed.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "Incorrect PIN. Try 1234 for simulation.", Toast.LENGTH_SHORT).show()
                     }
                 }
-                .setNegativeButton("Cancel", null)
-                .show()
+            }
         }, 2000)
     }
 
     private fun verifyPayment(phone: String) {
-        val verifyDialog = android.app.ProgressDialog(this)
-        verifyDialog.setMessage("Verifying transaction with Safaricom...")
-        verifyDialog.setCancelable(false)
-        verifyDialog.show()
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
+            .setMessage("Verifying transaction with Safaricom...")
+            .setCancelable(false)
+            .create()
+        dialog.show()
 
         // Phase 3: "Server-side" truth check (Simulating checking the M-Pesa API)
         android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-            verifyDialog.dismiss()
-            
-            // Simulation logic: In a real app, this would be a Firebase Function checking an M-Pesa Callback
-            // For this demo, we "verify" success after a delay.
-            currentUser?.let { uid ->
-                usersRef.child(uid).child("hasGlobalAccess").setValue(true).addOnSuccessListener {
-                    hasGlobalAccess = true
-                    Toast.makeText(this, "Transaction Verified! Global Chat Unlocked.", Toast.LENGTH_LONG).show()
-                    toggleGroup.check(R.id.btnChannelAll)
-                    switchChannel("global")
+            if (!isFinishing && !isDestroyed) {
+                dialog.dismiss()
+                
+                // Simulation logic: In a real app, this would be a Firebase Function checking an M-Pesa Callback
+                // For this demo, we "verify" success after a delay.
+                currentUser?.let { uid ->
+                    usersRef.child(uid).child("hasGlobalAccess").setValue(true).addOnSuccessListener {
+                        hasGlobalAccess = true
+                        Toast.makeText(this, "Transaction Verified! Global Chat Unlocked.", Toast.LENGTH_LONG).show()
+                        toggleGroup.check(R.id.btnChannelAll)
+                        switchChannel("global")
+                    }
                 }
             }
         }, 4000)
@@ -640,31 +705,7 @@ class StudyRoomActivity : AppCompatActivity() {
     }
 
     private fun loadParticipants(adapter: RecyclerView.Adapter<*>) {
-        participantsRef.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                participantList.clear()
-                val totalCount = snapshot.childrenCount
-                
-                var loadedCount = 0
-                for (child in snapshot.children) {
-                    val uid = child.key ?: continue
-                    usersRef.child(uid).get().addOnSuccessListener { userSnap ->
-                        val user = userSnap.getValue(User::class.java)?.copy(uid = uid)
-                        if (user != null && uid != currentUser) {
-                            if (!participantList.any { it.uid == uid }) {
-                                participantList.add(user)
-                            }
-                        }
-                        loadedCount++
-                        if (loadedCount.toLong() == totalCount) {
-                            adapter.notifyDataSetChanged()
-                            participantAdapter.notifyDataSetChanged()
-                        }
-                    }
-                }
-            }
-            override fun onCancelled(error: DatabaseError) {}
-        })
+        currentParticipantsRef?.addValueEventListener(participantListener)
     }
 
     private fun checkPermissions() = ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
@@ -697,6 +738,6 @@ class StudyRoomActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         speechToTextHelper.destroy()
-        currentUser?.let { participantsRef.child(it).removeValue() }
+        currentUser?.let { currentParticipantsRef?.child(it)?.removeValue() }
     }
 }
