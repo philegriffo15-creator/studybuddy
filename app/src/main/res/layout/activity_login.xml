@@ -8,6 +8,7 @@
     android:fillViewport="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/loginRoot"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="2dp"
@@ -63,56 +64,52 @@
             app:layout_constraintTop_toBottomOf="@id/tvTitle" />
 
         <!-- Email address -->
-        <TextView
-            android:id="@+id/lblEmail"
-            android:layout_width="wrap_content"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilEmail"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="40dp"
-            android:text="@string/email_address"
-            android:textColor="#FFFFFF"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvDescription" />
-
-        <EditText
-            android:id="@+id/etEmail"
-            android:layout_width="match_parent"
-            android:layout_height="54dp"
-            android:layout_marginTop="12dp"
-            android:background="@drawable/input_field_background"
-            android:backgroundTint="@null"
-            android:hint="@string/hint_email"
-            android:paddingStart="24dp"
-            android:textColor="#FFFFFF"
+            android:hint="@string/email_address"
             android:textColorHint="#66FFFFFF"
-            android:inputType="textEmailAddress"
-            app:layout_constraintTop_toBottomOf="@id/lblEmail" />
+            app:hintTextColor="#FFFFFF"
+            app:startIconDrawable="@android:drawable/ic_dialog_email"
+            app:startIconTint="#FFFFFF"
+            app:layout_constraintTop_toBottomOf="@id/tvDescription">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etEmail"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:background="@drawable/input_field_background"
+                android:backgroundTint="@null"
+                android:textColor="#FFFFFF"
+                android:inputType="textEmailAddress" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Password -->
-        <TextView
-            android:id="@+id/lblPassword"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="@string/password"
-            android:textColor="#FFFFFF"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/etEmail" />
-
-        <EditText
-            android:id="@+id/etPassword"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilPassword"
             android:layout_width="match_parent"
-            android:layout_height="54dp"
-            android:layout_marginTop="8dp"
-            android:background="@drawable/input_field_background"
-            android:backgroundTint="@null"
-            android:hint="@string/hint_password"
-            android:inputType="textPassword"
-            android:paddingStart="24dp"
-            android:textColor="#FFFFFF"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:hint="@string/password"
             android:textColorHint="#66FFFFFF"
-            app:layout_constraintTop_toBottomOf="@id/lblPassword" />
+            app:hintTextColor="#FFFFFF"
+            app:startIconDrawable="@android:drawable/ic_lock_idle_lock"
+            app:startIconTint="#FFFFFF"
+            app:passwordToggleEnabled="true"
+            app:passwordToggleTint="#FFFFFF"
+            app:layout_constraintTop_toBottomOf="@id/tilEmail">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etPassword"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:background="@drawable/input_field_background"
+                android:backgroundTint="@null"
+                android:textColor="#FFFFFF"
+                android:inputType="textPassword" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnLogin"
@@ -127,7 +124,8 @@
             android:textSize="18sp"
             android:textStyle="bold"
             app:cornerRadius="30dp"
-            app:layout_constraintTop_toBottomOf="@id/etPassword" />
+            android:foreground="?attr/selectableItemBackground"
+            app:layout_constraintTop_toBottomOf="@id/tilPassword" />
 
         <TextView
             android:id="@+id/tvSignupRedirect"

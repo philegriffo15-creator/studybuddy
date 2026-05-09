@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="#1F2440">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_gravity="center"
+        android:src="@drawable/mpesa_banner"
+        android:scaleType="fitCenter" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Lipa Na M-PESA"
+        android:textColor="#4CAF50"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_gravity="center" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Unlock Global Chat for KES 100"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        android:layout_gravity="center" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:hint="Safaricom Phone Number"
+        android:textColorHint="#A0A0A0"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etPhoneNumber"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="phone"
+            android:textColor="#FFFFFF"
+            android:text="07" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="An STK Push will be sent to your phone."
+        android:textColor="#A0A0A0"
+        android:textSize="12sp"
+        android:layout_gravity="center" />
+
+</LinearLayout>

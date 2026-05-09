@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="#1F2440">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Biography"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp"/>
+
+    <EditText
+        android:id="@+id/etEditBio"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/input_field_background"
+        android:backgroundTint="@null"
+        android:hint="Tell us about yourself"
+        android:padding="12dp"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#A0A0A0"
+        android:textSize="14sp"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Course"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp"/>
+
+    <EditText
+        android:id="@+id/etEditCourse"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/input_field_background"
+        android:backgroundTint="@null"
+        android:hint="Enter your course"
+        android:padding="12dp"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#A0A0A0"
+        android:textSize="14sp"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Residence"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp"/>
+
+    <EditText
+        android:id="@+id/etEditResidence"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/input_field_background"
+        android:backgroundTint="@null"
+        android:hint="Where do you live?"
+        android:padding="12dp"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#A0A0A0"
+        android:textSize="14sp"/>
+
+</LinearLayout>

@@ -67,6 +67,10 @@ class StudyHubActivity : AppCompatActivity() {
             showLogoutConfirmation()
         }
 
+        findViewById<android.widget.ImageView>(R.id.btnProfileToolbar).setOnClickListener {
+            startActivity(Intent(this, ProfileActivity::class.java))
+        }
+
         findViewById<FrameLayout>(R.id.btnNotificationsToolbar).setOnClickListener {
             startActivity(Intent(this, UpdatesActivity::class.java))
             badge.visibility = android.view.View.GONE
@@ -79,6 +83,11 @@ class StudyHubActivity : AppCompatActivity() {
         val cardPdf = findViewById<MaterialCardView>(R.id.cardPdfNotes)
         val cardPlanner = findViewById<MaterialCardView>(R.id.cardPlanner)
         val cardNotify = findViewById<MaterialCardView>(R.id.cardNotifications)
+        
+        cardNotify.setOnClickListener {
+            badge.visibility = android.view.View.GONE
+            startActivity(Intent(this, UpdatesActivity::class.java))
+        }
         val tvBannerTitle = findViewById<TextView>(R.id.tvBannerTitle)
         val tvBannerText = findViewById<TextView>(R.id.tvBannerText)
         
@@ -101,8 +110,8 @@ class StudyHubActivity : AppCompatActivity() {
         }
 
         cardPdf.setOnClickListener {
-            // Functionality: Open PDF Picker
-            pdfPicker.launch("application/pdf")
+            // Open full PDF Notes Activity
+            startActivity(Intent(this, PdfNotesActivity::class.java))
         }
 
         cardPlanner.setOnClickListener {

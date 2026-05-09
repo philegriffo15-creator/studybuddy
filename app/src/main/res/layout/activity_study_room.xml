@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/b_background_deep">
@@ -36,22 +37,77 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="LIVE SESSION"
-                android:textColor="#4CAF50"
-                android:textSize="12sp"
+                android:text="Welcome to the studyroom"
+                android:textColor="#3F51B5"
+                android:textSize="24sp"
+                android:fontFamily="sans-serif-black"
                 android:textStyle="bold"
-                android:letterSpacing="0.1" />
+                android:letterSpacing="0.02" />
 
             <TextView
                 android:id="@+id/tvTopicName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Mobile App Dev"
+                android:text="Study Session"
                 android:textColor="#FFFFFF"
                 android:textSize="24sp"
                 android:textStyle="bold" />
         </LinearLayout>
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <ImageButton
+            android:id="@+id/btnRoomAudioCall"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_call"
+            app:tint="#FFFFFF"
+            android:layout_marginEnd="12dp" />
+
+        <ImageButton
+            android:id="@+id/btnRoomVideoCall"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/presence_video_online"
+            app:tint="#FFFFFF" />
     </LinearLayout>
+
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:id="@+id/toggleGroupChannel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:singleSelection="true"
+        app:checkedButton="@+id/btnChannelAll"
+        app:layout_constraintTop_toBottomOf="@id/roomHeader"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnChannelAll"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Global (Premium)"
+            android:textColor="#FFFFFF"
+            app:strokeColor="#FFD700"
+            app:icon="@android:drawable/ic_lock_idle_lock"
+            app:iconTint="#FFD700" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnChannelCourse"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="My Course (Free)"
+            android:textColor="#FFFFFF"
+            app:strokeColor="#4CAF50" />
+    </com.google.android.material.button.MaterialButtonToggleGroup>
 
     <!-- Participant Section -->
     <com.google.android.material.card.MaterialCardView
@@ -59,14 +115,14 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="8dp"
         app:cardBackgroundColor="@color/b_card_bg"
         app:cardCornerRadius="20dp"
         app:strokeColor="@color/b_stroke_color"
         app:strokeWidth="1dp"
         android:clickable="true"
         android:focusable="true"
-        android:foreground="?attr/selectableItemBackground"
-        app:layout_constraintTop_toBottomOf="@id/roomHeader"
+        app:layout_constraintTop_toBottomOf="@id/toggleGroupChannel"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -74,58 +130,25 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="12dp">
 
-            <RelativeLayout
-                android:layout_width="match_parent"
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp">
+                android:text="Study Buddies in Room"
+                android:textColor="#A0A0A0"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
 
-                <TextView
-                    android:id="@+id/tvParticipantsLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Study Buddies in Room"
-                    android:textColor="#A0A0A0"
-                    android:textSize="12sp" />
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_alignParentEnd="true"
-                    android:src="@drawable/ic_notifications"
-                    app:tint="#A0A0A0" />
-            </RelativeLayout>
-
-            <!-- Horizontal list of avatars -->
-            <LinearLayout
-                android:id="@+id/layoutParticipantsAvatars"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvParticipantsHorizontal"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:layout_height="40dp"
+                android:orientation="horizontal"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/item_participant_circle" />
 
-                <com.google.android.material.imageview.ShapeableImageView
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:src="@drawable/ic_launcher_foreground"
-                    app:shapeAppearanceOverlay="@style/CircleImage"
-                    app:strokeColor="#E91E63"
-                    app:strokeWidth="2dp"/>
-
-                <TextView
-                    android:id="@+id/tvMoreBuddies"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_marginStart="-10dp"
-                    android:background="@drawable/badge_background"
-                    android:backgroundTint="#444444"
-                    android:gravity="center"
-                    android:text="+2"
-                    android:textColor="#FFFFFF"
-                    android:textSize="12sp"
-                    android:visibility="gone"/>
-
-            </LinearLayout>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
@@ -137,62 +160,214 @@
         android:layout_marginTop="16dp"
         android:paddingHorizontal="20dp"
         app:layout_constraintTop_toBottomOf="@id/cardParticipants"
-        app:layout_constraintBottom_toTopOf="@id/layoutInput"
+        app:layout_constraintBottom_toTopOf="@id/bottomInputBar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- Reply Preview Area -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/replyLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#1F2440"
+        android:padding="8dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/layoutInput">
+
+        <View
+            android:id="@+id/replyLine"
+            android:layout_width="4dp"
+            android:layout_height="0dp"
+            android:background="#D81B60"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/tvReplyName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:text="Replying to User"
+            android:textColor="#D81B60"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@id/replyLine"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvReplyMessage"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="40dp"
+            android:text="Replied message content..."
+            android:textColor="#A0A0A0"
+            android:textSize="14sp"
+            android:maxLines="1"
+            android:ellipsize="end"
+            app:layout_constraintStart_toEndOf="@id/replyLine"
+            app:layout_constraintTop_toBottomOf="@id/tvReplyName"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <ImageButton
+            android:id="@+id/btnCancelReply"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"
+            app:tint="#FFFFFF"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
     <!-- Message Input Bar -->
-    <LinearLayout
-        android:id="@+id/layoutInput"
+    <FrameLayout
+        android:id="@+id/bottomInputBar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@color/b_card_bg"
-        android:padding="12dp"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <ImageButton
-            android:id="@+id/btnAttachment"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_menu_camera"
-            app:tint="#FFFFFF" />
-
-        <ImageButton
-            android:id="@+id/btnMic"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="8dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_btn_speak_now"
-            app:tint="#FFFFFF" />
-
-        <EditText
-            android:id="@+id/etMessage"
-            android:layout_width="0dp"
-            android:layout_height="50dp"
-            android:layout_weight="1"
-            android:layout_marginStart="8dp"
-            android:background="@drawable/input_field_background"
-            android:backgroundTint="@null"
-            android:hint="Type a message..."
-            android:paddingHorizontal="16dp"
-            android:textColor="#FFFFFF"
-            android:textColorHint="#A0A0A0" />
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/btnSend"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/layoutInput"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:src="@drawable/ic_send"
-            app:backgroundTint="#D81B60"
-            app:fabCustomSize="50dp"
-            app:tint="#FFFFFF" />
-    </LinearLayout>
+            android:background="@color/b_card_bg"
+            android:padding="12dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <ImageButton
+                android:id="@+id/btnAttachment"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_camera"
+                app:tint="#FFFFFF" />
+
+            <ImageButton
+                android:id="@+id/btnMic"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_btn_speak_now"
+                app:tint="#FFFFFF" />
+
+            <EditText
+                android:id="@+id/etMessage"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/input_field_background"
+                android:backgroundTint="@null"
+                android:hint="Type a message..."
+                android:paddingHorizontal="16dp"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#A0A0A0" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/btnSend"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:src="@drawable/ic_send_insta"
+                app:backgroundTint="#833AB4"
+                app:fabCustomSize="50dp"
+                app:tint="#FFFFFF" />
+        </LinearLayout>
+
+        <!-- Recording Layout -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layoutRecording"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#1F2440"
+            android:padding="12dp"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/tvRecordTimer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0:00"
+                android:textColor="#FFFFFF"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+            <com.example.studybuddy.AudioWaveformView
+                android:id="@+id/audioWaveform"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_marginHorizontal="12dp"
+                app:layout_constraintStart_toEndOf="@id/tvRecordTimer"
+                app:layout_constraintEnd_toStartOf="@id/layoutSlideToCancel"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+            <LinearLayout
+                android:id="@+id/layoutSlideToCancel"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground"
+                app:layout_constraintEnd_toStartOf="@id/layoutSendVoice"
+                android:layout_marginEnd="16dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@android:drawable/ic_media_previous"
+                    app:tint="#A0A0A0" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Cancel"
+                    android:textColor="#FF5252"
+                    android:layout_marginStart="4dp"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layoutSendVoice"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_send_insta"
+                    app:tint="#833AB4" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Send"
+                    android:textColor="#833AB4"
+                    android:layout_marginStart="4dp"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

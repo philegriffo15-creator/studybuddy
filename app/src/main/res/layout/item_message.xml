@@ -7,37 +7,104 @@
     android:layout_height="wrap_content"
     android:padding="4dp">
 
+    <!-- Sender Profile Pic (Instagram Style) -->
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/ivSenderProfile"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginEnd="8dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_launcher_foreground"
+        app:layout_constraintBottom_toBottomOf="@id/messageContainer"
+        app:layout_constraintStart_toStartOf="parent"
+        app:shapeAppearanceOverlay="@style/CircleImage"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
     <LinearLayout
         android:id="@+id/messageContainer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:maxWidth="300dp"
-        app:layout_constraintStart_toStartOf="parent"
+        android:maxWidth="320dp"
+        android:layout_marginStart="8dp"
+        app:layout_constraintStart_toEndOf="@id/ivSenderProfile"
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
             android:id="@+id/tvSender"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="12dp"
             android:textColor="#A0A0A0"
-            android:textSize="10sp"
+            android:textSize="11sp"
             android:textStyle="bold"
             tools:text="Sender Name" />
+
+        <TextView
+            android:id="@+id/tvForwarded"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:text="↪ Forwarded"
+            android:textColor="#A0A0A0"
+            android:textSize="11sp"
+            android:textStyle="italic"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <LinearLayout
+            android:id="@+id/replyContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="#2E355B"
+            android:padding="6dp"
+            android:layout_marginTop="2dp"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <View
+                android:layout_width="3dp"
+                android:layout_height="match_parent"
+                android:background="#D81B60" />
+
+            <TextView
+                android:id="@+id/tvReplyPreview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:textColor="#A0A0A0"
+                android:textSize="13sp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                tools:text="Replied message preview..." />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/tvMessage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
+            android:layout_marginTop="4dp"
             android:background="@drawable/input_field_background"
             android:backgroundTint="#1F2440"
-            android:paddingHorizontal="12dp"
-            android:paddingVertical="8dp"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="12dp"
             android:textColor="#FFFFFF"
-            android:textSize="16sp"
+            android:textSize="18sp"
             tools:text="Hello, how are you?" />
+
+        <TextView
+            android:id="@+id/tvEdited"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginEnd="8dp"
+            android:text="edited"
+            android:textColor="#80A0A0A0"
+            android:textSize="9sp"
+            android:visibility="gone"
+            tools:visibility="visible" />
 
         <LinearLayout
             android:id="@+id/layoutAudio"
@@ -75,7 +142,55 @@
             android:layout_marginTop="2dp"
             android:scaleType="centerCrop"
             android:visibility="gone"
+            android:transitionName="image_message"
             android:contentDescription="Image Message" />
+
+        <!-- PDF Attachment Layout -->
+        <LinearLayout
+            android:id="@+id/layoutPdf"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:background="@drawable/input_field_background"
+            android:backgroundTint="#2E355B"
+            android:padding="12dp"
+            android:gravity="center_vertical"
+            android:visibility="gone"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_pdf"
+                app:tint="#D81B60" />
+
+            <TextView
+                android:id="@+id/tvPdfName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:maxWidth="180dp"
+                android:text="Document.pdf"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:maxLines="1"
+                android:ellipsize="middle" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvReaction"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="-10dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/badge_background"
+            android:backgroundTint="#2D3250"
+            android:paddingHorizontal="6dp"
+            android:textSize="14sp"
+            android:elevation="4dp"
+            android:visibility="gone"
+            tools:visibility="visible"
+            tools:text="❤️" />
 
     </LinearLayout>
 

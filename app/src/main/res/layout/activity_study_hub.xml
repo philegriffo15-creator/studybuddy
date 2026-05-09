@@ -37,33 +37,46 @@
                 android:gravity="center"
                 android:orientation="horizontal">
 
+                <!-- Profile Button -->
+                <ImageView
+                    android:id="@+id/btnProfileToolbar"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_marginEnd="16dp"
+                    android:src="@drawable/ic_launcher_foreground"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:focusable="true"
+                    app:tint="#FFFFFF" />
+
                 <!-- Notifications Bell with Badge -->
                 <FrameLayout
                     android:id="@+id/btnNotificationsToolbar"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="16dp"
+                    android:layout_marginEnd="8dp"
                     android:clickable="true"
                     android:focusable="true">
 
                     <ImageView
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        android:layout_margin="4dp"
-                        android:src="@drawable/ic_notifications"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:layout_margin="8dp"
+                        android:src="@drawable/ic_bell"
                         app:tint="#FFFFFF" />
 
                     <TextView
                         android:id="@+id/tvBadgeCount"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
                         android:layout_gravity="top|end"
                         android:background="@drawable/badge_background"
                         android:gravity="center"
                         android:text="3"
                         android:textColor="#FFFFFF"
-                        android:textSize="11sp"
+                        android:textSize="9sp"
                         android:textStyle="bold"
+                        android:elevation="2dp"
                         android:visibility="visible" />
                 </FrameLayout>
 
@@ -73,17 +86,17 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@drawable/card_logout_bg"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="8dp"
+                    android:paddingHorizontal="24dp"
+                    android:paddingVertical="12dp"
                     android:gravity="center"
                     android:orientation="horizontal"
                     android:clickable="true"
                     android:focusable="true">
 
                     <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:layout_marginEnd="8dp"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginEnd="10dp"
                         android:src="@android:drawable/ic_lock_power_off"
                         app:tint="#448AFF" />
 
@@ -92,7 +105,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/logout"
                         android:textColor="#448AFF"
-                        android:textSize="14sp"
+                        android:textSize="16sp"
                         android:textStyle="bold" />
 
                 </LinearLayout>
@@ -169,7 +182,7 @@
                     <ImageView
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:src="@drawable/ic_notifications"
+                        android:src="@drawable/ic_bell"
                         app:tint="#448AFF" /> <!-- Matches the "PDF Notes" card theme -->
 
                     <LinearLayout

@@ -24,6 +24,19 @@ class LoginActivity : AppCompatActivity() {
         val tvSignupRedirect = findViewById<TextView>(R.id.tvSignupRedirect)
         val btnBack = findViewById<android.widget.ImageButton>(R.id.btnBack)
 
+        AnimationHelper.applyScaleAnimation(btnLogin)
+
+        // Staggered animation
+        AnimationHelper.staggeredFadeIn(
+            findViewById(R.id.tvBrand),
+            findViewById(R.id.tvTitle),
+            findViewById(R.id.tvDescription),
+            findViewById(R.id.tilEmail),
+            findViewById(R.id.tilPassword),
+            btnLogin,
+            tvSignupRedirect
+        )
+
         btnBack.setOnClickListener { finish() }
 
         btnLogin.setOnClickListener {

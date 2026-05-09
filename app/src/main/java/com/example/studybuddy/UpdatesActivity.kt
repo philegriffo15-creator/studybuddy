@@ -104,19 +104,27 @@ class UpdatesActivity : AppCompatActivity() {
     ) : RecyclerView.Adapter<SimpleUpdateAdapter.VH>() {
         
         class VH(view: View) : RecyclerView.ViewHolder(view) {
-            val text: TextView = view.findViewById(android.R.id.text1)
+            val text: TextView = view.findViewById(R.id.tvUpdateText)
+            val icon: android.widget.ImageView = view.findViewById(R.id.ivUpdateIcon)
         }
         
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
-            val view = LayoutInflater.from(parent.context).inflate(android.R.layout.simple_list_item_1, parent, false)
+            val view = LayoutInflater.from(parent.context).inflate(R.layout.item_update, parent, false)
             return VH(view)
         }
         
         override fun onBindViewHolder(holder: VH, position: Int) {
             val item = list[position]
             holder.text.text = item.text
-            holder.text.setTextColor(android.graphics.Color.WHITE)
-            holder.text.textSize = 14f
+            
+            val iconRes = when(item.type) {
+                "room" -> android.R.drawable.stat_notify_chat
+                "task" -> R.drawable.ic_calendar
+                "meta" -> android.R.drawable.star_on
+                else -> R.drawable.ic_bell
+            }
+            holder.icon.setImageResource(iconRes)
+
             holder.itemView.setOnClickListener { onClick(item) }
         }
 

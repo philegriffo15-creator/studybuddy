@@ -8,6 +8,7 @@ import android.media.MediaRecorder
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -27,10 +28,24 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var messageAdapter: MessageAdapter
     private val messageList = mutableListOf<Message>()
     private var chatRoomId: String? = null
+    private lateinit var speechToTextHelper: SpeechToTextHelper
+    private var replyingToMessage: Message? = null
+    private var editingMessage: Message? = null
 
     private var mediaRecorder: MediaRecorder? = null
     private var audioFilePath: String = ""
     private var isRecording = false
+    private var recordedAudioUri: android.net.Uri? = null
+    private var currentUserName: String? = null
+    private var currentUserProfilePic: String? = null
+    
+    private var lastClickTime: Long = 0
+    private var recordingTimer: java.util.Timer? = null
+    private var recordTime = 0
+
+    private val pdfPicker = registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.GetContent()) { uri: android.net.Uri? ->
+        uri?.let { uploadPdf(it) }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,23 +64,126 @@ class ChatActivity : AppCompatActivity() {
         }
 
         val messageBox = findViewById<EditText>(R.id.messageBox)
-        val btnSend = findViewById<ImageButton>(R.id.sendButton)
+        val btnSend = findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(R.id.sendButton)
         val btnImage = findViewById<ImageButton>(R.id.attachmentButton)
-        val btnVoice = findViewById<ImageButton>(R.id.voiceMessageButton)
         val rvMessages = findViewById<RecyclerView>(R.id.rvMessages)
         val btnBack = findViewById<ImageButton>(R.id.btnBack)
+        val btnJoinRoom = findViewById<com.google.android.material.button.MaterialButton>(R.id.joinRoomButton)
+        
+        btnJoinRoom.setOnClickListener {
+            val intent = Intent(this, StudyRoomActivity::class.java)
+            startActivity(intent)
+        }
+
+        val replyLayout = findViewById<androidx.constraintlayout.widget.ConstraintLayout>(R.id.replyLayout)
+        val tvReplyName = findViewById<TextView>(R.id.tvReplyName)
+        val tvReplyMessage = findViewById<TextView>(R.id.tvReplyMessage)
+        val btnCancelReply = findViewById<ImageButton>(R.id.btnCancelReply)
+        val btnMic = findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(R.id.btnMic)
+        val layoutCancel = findViewById<View>(R.id.layoutSlideToCancel)
+        val layoutSendVoice = findViewById<View>(R.id.layoutSendVoice)
+
+        layoutCancel.setOnClickListener {
+            if (isRecording) {
+                cancelRecording()
+            }
+        }
+
+        layoutSendVoice.setOnClickListener {
+            if (isRecording) {
+                stopRecording()
+                uploadAudio()
+            }
+        }
+
+        val btnAudioCall = findViewById<ImageButton>(R.id.btnAudioCall)
+        val btnVideoCall = findViewById<ImageButton>(R.id.btnVideoCall)
+
+        btnAudioCall.setOnClickListener { startCall("audio", receiverUid) }
+        btnVideoCall.setOnClickListener { startCall("video", receiverUid) }
+
+        // Fetch current user info
+        currentUid?.let { uid ->
+            FirebaseDatabase.getInstance().getReference("Users").child(uid).get().addOnSuccessListener { snapshot ->
+                val user = snapshot.getValue(User::class.java)
+                currentUserName = user?.fullName
+                currentUserProfilePic = user?.profileImageUrl
+            }
+        }
+
+        // Typing indicator removed as requested
+        /*
+        messageBox.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                if (chatRoomId != null) {
+                    FirebaseDatabase.getInstance().getReference("chats").child(chatRoomId!!).child("typing").child(currentUid ?: "").setValue(!s.isNullOrEmpty())
+                }
+            }
+            override fun afterTextChanged(s: android.text.Editable?) {}
+        })
+
+        database.parent?.child("typing")?.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                var someoneTyping = false
+                for (child in snapshot.children) {
+                    if (child.key != currentUid && child.getValue(Boolean::class.java) == true) {
+                        someoneTyping = true
+                        break
+                    }
+                }
+                typingIndicator.visibility = if (someoneTyping) View.VISIBLE else View.GONE
+            }
+            override fun onCancelled(error: DatabaseError) {}
+        })
+        */
 
         btnBack.setOnClickListener { finish() }
+        speechToTextHelper = SpeechToTextHelper(this, messageBox)
 
-        messageAdapter = MessageAdapter(messageList)
+        messageAdapter = MessageAdapter(messageList, "chats/${chatRoomId ?: "default"}") { msg, action ->
+            when (action) {
+                "reply" -> {
+                    replyingToMessage = msg
+                    tvReplyName.text = "Replying to ${msg.senderName ?: "User"}"
+                    tvReplyMessage.text = getMessageSummary(msg)
+                    replyLayout.visibility = View.VISIBLE
+                }
+                "edit" -> {
+                    editingMessage = msg
+                    messageBox.setText(msg.message)
+                    messageBox.requestFocus()
+                    val imm = getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+                    imm.showSoftInput(messageBox, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
+                }
+                "forward" -> showForwardDialog(msg)
+            }
+        }
         rvMessages.layoutManager = LinearLayoutManager(this)
         rvMessages.adapter = messageAdapter
+
+        // Swipe to reply
+        val swipeToReplyCallback = SwipeToReplyCallback(this) { position ->
+            val message = messageList[position]
+            replyingToMessage = message
+            tvReplyName.text = "Replying to ${message.senderName ?: "User"}"
+            tvReplyMessage.text = getMessageSummary(message)
+            replyLayout.visibility = View.VISIBLE
+            messageAdapter.notifyItemChanged(position)
+        }
+        androidx.recyclerview.widget.ItemTouchHelper(swipeToReplyCallback).attachToRecyclerView(rvMessages)
+
+        btnCancelReply.setOnClickListener {
+            replyingToMessage = null
+            replyLayout.visibility = View.GONE
+        }
 
         database.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 messageList.clear()
                 for (data in snapshot.children) {
-                    val message = data.getValue(Message::class.java)
+                    if (data.key == "typing" || data.key == "pinnedMessage") continue
+                    val message = data.getValue(Message::class.java)?.copy(messageId = data.key)
                     if (message != null) messageList.add(message)
                 }
                 messageAdapter.notifyDataSetChanged()
@@ -75,50 +193,89 @@ class ChatActivity : AppCompatActivity() {
         })
 
         btnSend.setOnClickListener {
-            val text = messageBox.text.toString().trim()
-            if (text.isNotEmpty()) {
-                database.push().setValue(Message(sender = currentUid, message = text, type = "text"))
-                messageBox.setText("")
+            if (recordedAudioUri != null) {
+                uploadAudio()
+            } else {
+                val text = messageBox.text.toString().trim()
+                if (text.isNotEmpty()) {
+                    if (editingMessage != null) {
+                        val updatedMsg = editingMessage!!.copy(message = text, edited = true)
+                        database.child(editingMessage!!.messageId!!).setValue(updatedMsg)
+                        editingMessage = null
+                    } else {
+                        val newMessage = Message(
+                            sender = currentUid,
+                            senderName = currentUserName,
+                            senderProfilePic = currentUserProfilePic,
+                            message = text,
+                            type = "text",
+                            replyToId = replyingToMessage?.messageId,
+                            replyToText = getMessageSummary(replyingToMessage)
+                        )
+                        database.push().setValue(newMessage)
+                    }
+                    messageBox.setText("")
+                    recordedAudioUri = null // Clear audio state
+                    replyingToMessage = null
+                    replyLayout.visibility = View.GONE
+                }
             }
         }
 
         btnImage.setOnClickListener {
-            val intent = Intent(Intent.ACTION_PICK).apply { type = "image/*" }
-            startActivityForResult(intent, 100)
+            val options = arrayOf("Image", "PDF")
+            androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Select Attachment Type")
+                .setItems(options) { _, which ->
+                    if (which == 0) {
+                        val intent = Intent(Intent.ACTION_PICK).apply { type = "image/*" }
+                        startActivityForResult(intent, 100)
+                    } else {
+                        pdfPicker.launch("application/pdf")
+                    }
+                }.show()
         }
 
-        btnVoice.setOnClickListener {
-            if (checkPermissions()) {
+        // Double tap for mic
+        btnMic.setOnClickListener {
+            val clickTime = System.currentTimeMillis()
+            if (clickTime - lastClickTime < 500) {
                 if (!isRecording) {
-                    startRecording(btnVoice)
+                    if (checkPermissions()) startRecording() else requestPermissions()
                 } else {
-                    stopAndUploadRecording(btnVoice)
+                    stopRecording()
                 }
             } else {
-                requestPermissions()
+                speechToTextHelper.startListening()
             }
+            lastClickTime = clickTime
         }
+    }
 
-        findViewById<Button>(R.id.joinRoomButton).setOnClickListener {
-            startActivity(Intent(this, StudyRoomActivity::class.java).apply { putExtra("TOPIC_NAME", "Mobile App Dev") })
+    override fun onDestroy() {
+        super.onDestroy()
+        speechToTextHelper.destroy()
+    }
+
+    private fun startCall(type: String, receiverUid: String?) {
+        val intent = Intent(this, CallActivity::class.java).apply {
+            putExtra("CALL_TYPE", type)
+            putExtra("RECEIVER_UID", receiverUid)
         }
+        startActivity(intent)
     }
 
     private fun checkPermissions() = ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+    private fun requestPermissions() = ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO), 200)
 
-    private fun requestPermissions() {
-        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO), 200)
-    }
+    private fun startRecording() {
+        val layoutInput = findViewById<View>(R.id.layoutInput)
+        val layoutRecording = findViewById<View>(R.id.layoutRecording)
+        val tvTimer = findViewById<TextView>(R.id.tvRecordTimer)
+        val waveform = findViewById<AudioWaveformView>(R.id.audioWaveform)
 
-    private fun startRecording(btn: ImageButton) {
-        audioFilePath = "${externalCacheDir?.absolutePath}/voice_message.3gp"
-        
-        mediaRecorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            MediaRecorder(this)
-        } else {
-            MediaRecorder()
-        }
-
+        audioFilePath = "${externalCacheDir?.absolutePath}/voice_${System.currentTimeMillis()}.3gp"
+        mediaRecorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) MediaRecorder(this) else MediaRecorder()
         try {
             mediaRecorder?.apply {
                 setAudioSource(MediaRecorder.AudioSource.MIC)
@@ -129,40 +286,143 @@ class ChatActivity : AppCompatActivity() {
                 start()
             }
             isRecording = true
-            btn.setColorFilter(Color.RED)
-            Toast.makeText(this, "Recording started...", Toast.LENGTH_SHORT).show()
+            layoutInput.visibility = View.GONE
+            layoutRecording.visibility = View.VISIBLE
+            waveform.clear()
+            
+            recordTime = 0
+            recordingTimer = java.util.Timer()
+            recordingTimer?.scheduleAtFixedRate(object : java.util.TimerTask() {
+                override fun run() {
+                    runOnUiThread {
+                        recordTime++
+                        val mins = recordTime / 60
+                        val secs = recordTime % 60
+                        tvTimer.text = String.format("%d:%02d", mins, secs)
+                        mediaRecorder?.let {
+                            waveform.addAmplitude(it.maxAmplitude.toFloat())
+                        }
+                    }
+                }
+            }, 0, 100)
+
+            findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(R.id.btnMic).setColorFilter(Color.RED)
+            Toast.makeText(this, "Recording... Double tap again to stop", Toast.LENGTH_SHORT).show()
         } catch (e: IOException) {
-            Log.e("ChatActivity", "prepare() failed: ${e.message}")
-            Toast.makeText(this, "Recording failed", Toast.LENGTH_SHORT).show()
+            Log.e("ChatActivity", "Recording failed: ${e.message}")
         }
     }
 
-    private fun stopAndUploadRecording(btn: ImageButton) {
+    private fun stopRecording() {
+        val layoutInput = findViewById<View>(R.id.layoutInput)
+        val layoutRecording = findViewById<View>(R.id.layoutRecording)
+        
+        recordingTimer?.cancel()
+        recordingTimer = null
+
         try {
-            mediaRecorder?.apply {
-                stop()
-                release()
-            }
-        } catch (e: Exception) {
-            Log.e("ChatActivity", "stop() failed: ${e.message}")
-        }
+            mediaRecorder?.stop()
+            mediaRecorder?.release()
+        } catch (e: Exception) {}
         mediaRecorder = null
         isRecording = false
-        btn.setColorFilter(Color.WHITE)
-        uploadAudio()
+        
+        layoutInput.visibility = View.VISIBLE
+        layoutRecording.visibility = View.GONE
+
+        findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(R.id.btnMic).setColorFilter(Color.WHITE)
+        recordedAudioUri = android.net.Uri.fromFile(File(audioFilePath))
+        Toast.makeText(this, "Voice recorded! Click send to share.", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun cancelRecording() {
+        val layoutInput = findViewById<View>(R.id.layoutInput)
+        val layoutRecording = findViewById<View>(R.id.layoutRecording)
+
+        recordingTimer?.cancel()
+        recordingTimer = null
+
+        try {
+            mediaRecorder?.stop()
+            mediaRecorder?.release()
+        } catch (e: Exception) {}
+        mediaRecorder = null
+        isRecording = false
+
+        layoutInput.visibility = View.VISIBLE
+        layoutRecording.visibility = View.GONE
+
+        findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(R.id.btnMic).setColorFilter(Color.WHITE)
+        recordedAudioUri = null
+        Toast.makeText(this, "Recording cancelled", Toast.LENGTH_SHORT).show()
     }
 
     private fun uploadAudio() {
-        val file = android.net.Uri.fromFile(File(audioFilePath))
+        if (recordedAudioUri == null) return
         val ref = storage.child("audio/${System.currentTimeMillis()}.3gp")
-        ref.putFile(file).addOnSuccessListener {
+        ref.putFile(recordedAudioUri!!).addOnSuccessListener {
             ref.downloadUrl.addOnSuccessListener { uri ->
-                database.push().setValue(Message(sender = currentUid, audioUrl = uri.toString(), type = "audio"))
-                Toast.makeText(this, "Voice message sent", Toast.LENGTH_SHORT).show()
+                val newMessage = Message(
+                    sender = currentUid,
+                    senderName = currentUserName,
+                    senderProfilePic = currentUserProfilePic,
+                    audioUrl = uri.toString(),
+                    type = "audio",
+                    replyToId = replyingToMessage?.messageId,
+                    replyToText = getMessageSummary(replyingToMessage)
+                )
+                database.push().setValue(newMessage)
+                recordedAudioUri = null
+                replyingToMessage = null
+                findViewById<View>(R.id.replyLayout).visibility = View.GONE
             }
-        }.addOnFailureListener {
-            Toast.makeText(this, "Upload failed", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun uploadPdf(uri: android.net.Uri) {
+        val fileName = getFileName(uri) ?: "Document.pdf"
+        val ref = storage.child("pdfs/${System.currentTimeMillis()}_$fileName")
+        
+        Toast.makeText(this, "Sharing PDF...", Toast.LENGTH_SHORT).show()
+        
+        ref.putFile(uri).addOnSuccessListener {
+            ref.downloadUrl.addOnSuccessListener { downloadUri ->
+                val newMessage = Message(
+                    sender = currentUid,
+                    senderName = currentUserName,
+                    senderProfilePic = currentUserProfilePic,
+                    pdfUrl = downloadUri.toString(),
+                    pdfName = fileName,
+                    type = "pdf",
+                    replyToId = replyingToMessage?.messageId,
+                    replyToText = getMessageSummary(replyingToMessage)
+                )
+                database.push().setValue(newMessage)
+                replyingToMessage = null
+                findViewById<View>(R.id.replyLayout).visibility = View.GONE
+            }
+        }
+    }
+
+    private fun getFileName(uri: android.net.Uri): String? {
+        var result: String? = null
+        if (uri.scheme == "content") {
+            val cursor = contentResolver.query(uri, null, null, null, null)
+            try {
+                if (cursor != null && cursor.moveToFirst()) {
+                    val index = cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME)
+                    if (index != -1) result = cursor.getString(index)
+                }
+            } finally {
+                cursor?.close()
+            }
+        }
+        if (result == null) {
+            result = uri.path
+            val cut = result?.lastIndexOf('/') ?: -1
+            if (cut != -1) result = result?.substring(cut + 1)
+        }
+        return result
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -172,9 +432,77 @@ class ChatActivity : AppCompatActivity() {
             val ref = storage.child("images/${System.currentTimeMillis()}.jpg")
             ref.putFile(fileUri).addOnSuccessListener {
                 ref.downloadUrl.addOnSuccessListener { uri ->
-                    database.push().setValue(Message(sender = currentUid, imageUrl = uri.toString(), type = "image"))
+                    val newMessage = Message(
+                        sender = currentUid,
+                        senderName = currentUserName,
+                        senderProfilePic = currentUserProfilePic,
+                        imageUrl = uri.toString(),
+                        type = "image",
+                        replyToId = replyingToMessage?.messageId,
+                        replyToText = getMessageSummary(replyingToMessage)
+                    )
+                    database.push().setValue(newMessage)
+                    replyingToMessage = null
+                    findViewById<View>(R.id.replyLayout).visibility = View.GONE
                 }
             }
         }
+    }
+
+    private fun getMessageSummary(message: Message?): String? {
+        return when (message?.type) {
+            "image" -> "📷 Photo"
+            "audio" -> "🎤 Voice message"
+            "pdf" -> "📄 PDF: ${message.pdfName ?: "Document"}"
+            else -> message?.message
+        }
+    }
+
+    private fun showForwardDialog(message: Message) {
+        val dialog = com.google.android.material.bottomsheet.BottomSheetDialog(this)
+        val view = layoutInflater.inflate(R.layout.bottom_sheet_participants, null)
+        val rvParticipants = view.findViewById<RecyclerView>(R.id.rvParticipants)
+        
+        val participantsList = mutableListOf<User>()
+        val adapter = UserAdapter(participantsList) { selectedUser ->
+            val myUid = currentUid ?: return@UserAdapter
+            val targetUid = selectedUser.uid ?: return@UserAdapter
+
+            val forwardChatId = if (myUid < targetUid) "${myUid}_$targetUid" else "${targetUid}_$myUid"
+            val forwardRef = FirebaseDatabase.getInstance().getReference("chats").child(forwardChatId)
+            
+            val forwardedMsg = message.copy(
+                messageId = null,
+                sender = myUid,
+                senderName = currentUserName ?: "User",
+                senderProfilePic = currentUserProfilePic,
+                timestamp = System.currentTimeMillis(),
+                forwarded = true,
+                replyToId = null,
+                replyToText = null
+            )
+            
+            forwardRef.push().setValue(forwardedMsg).addOnSuccessListener {
+                Toast.makeText(this, "Message forwarded to ${selectedUser.fullName}", Toast.LENGTH_SHORT).show()
+                dialog.dismiss()
+            }
+        }
+        
+        rvParticipants.layoutManager = LinearLayoutManager(this)
+        rvParticipants.adapter = adapter
+        
+        FirebaseDatabase.getInstance().getReference("Users").get().addOnSuccessListener { snapshot ->
+            participantsList.clear()
+            for (data in snapshot.children) {
+                val user = data.getValue(User::class.java)?.copy(uid = data.key)
+                if (user != null && user.uid != currentUid) {
+                    participantsList.add(user)
+                }
+            }
+            adapter.notifyDataSetChanged()
+        }
+
+        dialog.setContentView(view)
+        dialog.show()
     }
 }
