@@ -23,9 +23,10 @@ class PdfNotesActivity : AppCompatActivity() {
     private lateinit var adapter: PdfAdapter
     private val pdfList = mutableListOf<PdfFile>()
     private lateinit var progressBar: ProgressBar
+    private var pdfListener: ValueEventListener? = null
 
     private val pdfPicker = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        uri?.let { uploadPdf(it) }
+        uri?.let { showUploadConfirmationDialog(it) }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,17 +59,31 @@ class PdfNotesActivity : AppCompatActivity() {
     }
 
     private fun loadPdfs() {
-        database.addValueEventListener(object : ValueEventListener {
+        pdfListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 pdfList.clear()
                 for (data in snapshot.children) {
                     val pdf = data.getValue(PdfFile::class.java)?.copy(id = data.key)
                     if (pdf != null) pdfList.add(pdf)
                 }
+                pdfList.sortByDescending { it.timestamp }
                 adapter.notifyDataSetChanged()
             }
             override fun onCancelled(error: DatabaseError) {}
-        })
+        }
+        database.addValueEventListener(pdfListener!!)
+    }
+
+    private fun showUploadConfirmationDialog(uri: Uri) {
+        val fileName = getFileName(uri) ?: "New_Note.pdf"
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Confirm Upload")
+            .setMessage("Do you want to upload \"$fileName\" to your PDF Notes?")
+            .setPositiveButton("Upload") { _, _ ->
+                uploadPdf(uri)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     private fun uploadPdf(uri: Uri) {
@@ -92,6 +107,11 @@ class PdfNotesActivity : AppCompatActivity() {
             progressBar.visibility = View.GONE
             Toast.makeText(this, "Upload Failed: ${it.message}", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        pdfListener?.let { database.removeEventListener(it) }
     }
 
     private fun viewPdf(pdf: PdfFile) {

@@ -8,74 +8,85 @@
     android:background="@color/b_background_deep">
 
     <!-- Header: Current Match Info -->
-    <LinearLayout
-        android:id="@+id/roomHeader"
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardHeader"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="24dp"
-        android:gravity="center_vertical"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="16dp"
+        app:cardBackgroundColor="@color/b_card_bg"
+        app:cardCornerRadius="20dp"
+        app:strokeColor="@color/b_stroke_color"
+        app:strokeWidth="1dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <ImageButton
-            android:id="@+id/btnBack"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/abc_ic_ab_back_material"
-            app:tint="#FFFFFF"
-            android:contentDescription="@string/desc_back" />
-
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:id="@+id/roomHeader"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:orientation="vertical">
+            android:orientation="horizontal"
+            android:padding="16dp"
+            android:gravity="center_vertical">
 
-            <TextView
+            <ImageButton
+                android:id="@+id/btnBack"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/abc_ic_ab_back_material"
+                app:tint="#FFFFFF"
+                android:contentDescription="@string/desc_back" />
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Welcome to the studyroom"
-                android:textColor="#3F51B5"
-                android:textSize="24sp"
-                android:fontFamily="sans-serif-black"
-                android:textStyle="bold"
-                android:letterSpacing="0.02" />
+                android:layout_marginStart="16dp"
+                android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/tvTopicName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Study Session"
-                android:textColor="#FFFFFF"
-                android:textSize="24sp"
-                android:textStyle="bold" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Study Room"
+                    android:textColor="#3F51B5"
+                    android:textSize="18sp"
+                    android:fontFamily="sans-serif-black"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvTopicName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Session"
+                    android:textColor="#FFFFFF"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <ImageButton
+                android:id="@+id/btnRoomAudioCall"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_call_up"
+                app:tint="#FFFFFF"
+                android:layout_marginEnd="12dp" />
+
+            <ImageButton
+                android:id="@+id/btnRoomVideoCall"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/presence_video_online"
+                app:tint="#FFFFFF" />
         </LinearLayout>
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
-
-        <ImageButton
-            android:id="@+id/btnRoomAudioCall"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_menu_call"
-            app:tint="#FFFFFF"
-            android:layout_marginEnd="12dp" />
-
-        <ImageButton
-            android:id="@+id/btnRoomVideoCall"
-            android:layout_width="45dp"
-            android:layout_height="45dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/presence_video_online"
-            app:tint="#FFFFFF" />
-    </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
 
     <com.google.android.material.button.MaterialButtonToggleGroup
         android:id="@+id/toggleGroupChannel"
@@ -86,7 +97,7 @@
         app:singleSelection="true"
         app:checkedButton="@+id/btnChannelAll"
         app:cornerRadius="32dp"
-        app:layout_constraintTop_toBottomOf="@id/roomHeader"
+        app:layout_constraintTop_toBottomOf="@id/cardHeader"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 

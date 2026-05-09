@@ -22,6 +22,8 @@ class PlannerActivity : AppCompatActivity() {
 
     private lateinit var taskAdapter: TaskAdapter
     private val taskList = mutableListOf<StudyTask>()
+    private var taskListener: ValueEventListener? = null
+    private var streakListener: ValueEventListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,9 +67,13 @@ class PlannerActivity : AppCompatActivity() {
 
     private fun loadTasks() {
         val uid = currentUid ?: return
+        
+        // Remove old listener if exists
+        taskListener?.let { database.removeEventListener(it) }
+        
         database = FirebaseDatabase.getInstance().getReference("Tasks").child(uid).child(selectedDate)
         
-        database.addValueEventListener(object : ValueEventListener {
+        taskListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 taskList.clear()
                 for (data in snapshot.children) {
@@ -79,7 +85,8 @@ class PlannerActivity : AppCompatActivity() {
                 checkAndUpdateStreak()
             }
             override fun onCancelled(error: DatabaseError) {}
-        })
+        }
+        database.addValueEventListener(taskListener!!)
     }
 
     private fun updateProgress() {
@@ -99,14 +106,21 @@ class PlannerActivity : AppCompatActivity() {
 
     private fun loadStreak() {
         val uid = currentUid ?: return
+        
+        streakListener?.let { 
+            FirebaseDatabase.getInstance().getReference("Users").child(uid).child("streak").removeEventListener(it) 
+        }
+
+        streakListener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val streak = snapshot.getValue(Int::class.java) ?: 0
+                findViewById<TextView>(R.id.tvStreakCount).text = getString(R.string.days_count, streak)
+            }
+            override fun onCancelled(error: DatabaseError) {}
+        }
+        
         FirebaseDatabase.getInstance().getReference("Users").child(uid)
-            .child("streak").addValueEventListener(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    val streak = snapshot.getValue(Int::class.java) ?: 0
-                    findViewById<TextView>(R.id.tvStreakCount).text = getString(R.string.days_count, streak)
-                }
-                override fun onCancelled(error: DatabaseError) {}
-            })
+            .child("streak").addValueEventListener(streakListener!!)
     }
 
     private fun checkAndUpdateStreak() {

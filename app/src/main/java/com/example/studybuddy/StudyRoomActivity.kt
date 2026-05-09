@@ -56,6 +56,7 @@ class StudyRoomActivity : AppCompatActivity() {
     private var recordingTimer: java.util.Timer? = null
     private var recordTime = 0
     private lateinit var toggleGroup: com.google.android.material.button.MaterialButtonToggleGroup
+    private var isListenersAttached = false
 
     private val pdfPicker = registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.GetContent()) { uri: android.net.Uri? ->
         uri?.let { uploadPdf(it) }
@@ -166,7 +167,7 @@ class StudyRoomActivity : AppCompatActivity() {
                 hasGlobalAccess = user?.hasGlobalAccess ?: false
                 
                 // Keep generic title as requested
-                tvTopic.text = "Study Session"
+                tvTopic.text = "Session"
 
                 // Once user info is loaded, set initial channel
                 switchChannel("course")
@@ -351,6 +352,7 @@ class StudyRoomActivity : AppCompatActivity() {
     }
 
     private fun loadMessages() {
+        database?.removeEventListener(messageListener)
         database?.addValueEventListener(messageListener)
     }
 
@@ -689,6 +691,7 @@ class StudyRoomActivity : AppCompatActivity() {
     }
 
     private fun loadParticipants(adapter: RecyclerView.Adapter<*>) {
+        currentParticipantsRef?.removeEventListener(participantListener)
         currentParticipantsRef?.addValueEventListener(participantListener)
     }
 
@@ -721,7 +724,11 @@ class StudyRoomActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        speechToTextHelper.destroy()
+        if (::speechToTextHelper.isInitialized) {
+            speechToTextHelper.destroy()
+        }
+        database?.removeEventListener(messageListener)
+        currentParticipantsRef?.removeEventListener(participantListener)
         currentUser?.let { currentParticipantsRef?.child(it)?.removeValue() }
     }
 }

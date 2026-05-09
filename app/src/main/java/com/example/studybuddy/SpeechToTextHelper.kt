@@ -68,7 +68,11 @@ class SpeechToTextHelper(private val context: Context, private val editText: Edi
     }
 
     fun startListening() {
-        speechRecognizer?.startListening(recognitionIntent)
+        if (androidx.core.content.ContextCompat.checkSelfPermission(context, android.Manifest.permission.RECORD_AUDIO) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            speechRecognizer?.startListening(recognitionIntent)
+        } else {
+            Toast.makeText(context, "Microphone permission required for Speech-to-Text", Toast.LENGTH_SHORT).show()
+        }
     }
 
     fun stopListening() {

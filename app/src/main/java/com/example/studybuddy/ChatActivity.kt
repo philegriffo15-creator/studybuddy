@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.google.firebase.storage.FirebaseStorage
@@ -43,6 +44,7 @@ class ChatActivity : AppCompatActivity() {
     private var lastClickTime: Long = 0
     private var recordingTimer: java.util.Timer? = null
     private var recordTime = 0
+    private var messageListener: ValueEventListener? = null
 
     private val pdfPicker = registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.GetContent()) { uri: android.net.Uri? ->
         uri?.let { uploadPdf(it) }
@@ -56,6 +58,24 @@ class ChatActivity : AppCompatActivity() {
         val receiverName = intent.getStringExtra("receiver_name")
 
         findViewById<TextView>(R.id.userName).text = receiverName ?: "Chat"
+        val ivReceiverProfile = findViewById<ImageView>(R.id.profileImage)
+
+        if (receiverUid != null) {
+            FirebaseDatabase.getInstance().getReference("Users").child(receiverUid)
+                .child("profileImageUrl").addValueEventListener(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        val imageUrl = snapshot.getValue(String::class.java)
+                        if (!imageUrl.isNullOrEmpty()) {
+                            Glide.with(this@ChatActivity)
+                                .load(imageUrl)
+                                .circleCrop()
+                                .placeholder(R.drawable.ic_launcher_foreground)
+                                .into(ivReceiverProfile)
+                        }
+                    }
+                    override fun onCancelled(error: DatabaseError) {}
+                })
+        }
 
         if (currentUid != null && receiverUid != null) {
             chatRoomId = if (currentUid < receiverUid) "${currentUid}_${receiverUid}" else "${receiverUid}_${currentUid}"
@@ -165,7 +185,7 @@ class ChatActivity : AppCompatActivity() {
             replyLayout.visibility = View.GONE
         }
 
-        database.addValueEventListener(object : ValueEventListener {
+        messageListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 messageList.clear()
                 for (data in snapshot.children) {
@@ -177,7 +197,8 @@ class ChatActivity : AppCompatActivity() {
                 rvMessages.scrollToPosition(messageList.size - 1)
             }
             override fun onCancelled(error: DatabaseError) {}
-        })
+        }
+        database.addValueEventListener(messageListener!!)
 
         btnSend.setOnClickListener {
             it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
@@ -244,7 +265,10 @@ class ChatActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        speechToTextHelper.destroy()
+        if (::speechToTextHelper.isInitialized) {
+            speechToTextHelper.destroy()
+        }
+        messageListener?.let { database.removeEventListener(it) }
     }
 
     private fun startCall(type: String, receiverUid: String?) {

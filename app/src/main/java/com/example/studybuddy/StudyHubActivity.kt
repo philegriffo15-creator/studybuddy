@@ -8,12 +8,14 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import com.bumptech.glide.Glide
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
@@ -33,12 +35,6 @@ class StudyHubActivity : AppCompatActivity() {
         "✨ Believe you can and you're halfway there!",
         "📈 Small progress is still progress. Keep going!"
     )
-
-    private val pdfPicker = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        uri?.let {
-            Toast.makeText(this, "PDF Selected: ${it.path}", Toast.LENGTH_SHORT).show()
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,7 +66,25 @@ class StudyHubActivity : AppCompatActivity() {
             showLogoutConfirmation()
         }
 
-        findViewById<FrameLayout>(R.id.btnProfileToolbar).setOnClickListener {
+        val profileBtn = findViewById<ImageView>(R.id.btnProfileToolbar)
+        auth.currentUser?.uid?.let { uid ->
+            database.child("Users").child(uid).child("profileImageUrl")
+                .addValueEventListener(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        val imageUrl = snapshot.getValue(String::class.java)
+                        if (!imageUrl.isNullOrEmpty()) {
+                            Glide.with(this@StudyHubActivity)
+                                .load(imageUrl)
+                                .circleCrop()
+                                .placeholder(R.drawable.ic_launcher_foreground)
+                                .into(profileBtn)
+                        }
+                    }
+                    override fun onCancelled(error: DatabaseError) {}
+                })
+        }
+
+        profileBtn.setOnClickListener {
             it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             startActivity(Intent(this, ProfileActivity::class.java))
         }
@@ -114,8 +128,7 @@ class StudyHubActivity : AppCompatActivity() {
 
         cardPdf.setOnClickListener {
             it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
-            // Functionality: Open PDF Picker
-            pdfPicker.launch("application/pdf")
+            startActivity(Intent(this, PdfNotesActivity::class.java))
         }
 
         cardPlanner.setOnClickListener {

@@ -39,13 +39,7 @@
             android:name=".StudyHubActivity"
             android:exported="false" />
         <activity
-            android:name=".StudyHub"
-            android:exported="false" />
-        <activity
             android:name=".SplashActivity"
-            android:exported="false" />
-        <activity
-            android:name=".MainActivity2"
             android:exported="false" />
         <activity
             android:name=".ProfileActivity"

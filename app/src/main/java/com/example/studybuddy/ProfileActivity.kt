@@ -33,6 +33,7 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var tvGroups: TextView
     private lateinit var tvResidence: TextView
 
+    private var profileListener: ValueEventListener? = null
     private val PICK_IMAGE_REQUEST = 71
     private var imageUri: Uri? = null
 
@@ -68,7 +69,7 @@ class ProfileActivity : AppCompatActivity() {
             database = FirebaseDatabase.getInstance().getReference("Users").child(currentUser.uid)
             
             // Load User Data
-            database.addValueEventListener(object : ValueEventListener {
+            profileListener = object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     val user = snapshot.getValue(User::class.java)
                     if (user != null) {
@@ -89,7 +90,8 @@ class ProfileActivity : AppCompatActivity() {
                     }
                 }
                 override fun onCancelled(error: DatabaseError) {}
-            })
+            }
+            database.addValueEventListener(profileListener!!)
         }
 
         ivProfileImage.setOnClickListener { chooseImage() }
@@ -101,6 +103,11 @@ class ProfileActivity : AppCompatActivity() {
         statStudyHours.setOnClickListener { Toast.makeText(this, "Keep studying to increase your hours!", Toast.LENGTH_SHORT).show() }
         statGroups.setOnClickListener { Toast.makeText(this, "Join more groups in the Study Hub!", Toast.LENGTH_SHORT).show() }
         statStreak.setOnClickListener { Toast.makeText(this, "Daily activity maintains your streak!", Toast.LENGTH_SHORT).show() }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        profileListener?.let { database.removeEventListener(it) }
     }
 
     private fun chooseImage() {
