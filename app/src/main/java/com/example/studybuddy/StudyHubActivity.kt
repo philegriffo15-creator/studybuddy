@@ -3,8 +3,10 @@ package com.example.studybuddy
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.HapticFeedbackConstants
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -52,11 +54,11 @@ class StudyHubActivity : AppCompatActivity() {
                 val count = snapshot.childrenCount.toInt()
                 if (lastMessageCount == 0) {
                     lastMessageCount = count
-                    badge.visibility = android.view.View.GONE
+                    badge.visibility = View.GONE
                 } else if (count > lastMessageCount) {
                     val newMessages = count - lastMessageCount
                     badge.text = newMessages.toString()
-                    badge.visibility = android.view.View.VISIBLE
+                    badge.visibility = View.VISIBLE
                 }
             }
             override fun onCancelled(error: DatabaseError) {}
@@ -64,16 +66,19 @@ class StudyHubActivity : AppCompatActivity() {
 
         // Handle Logout Button in Toolbar
         findViewById<LinearLayout>(R.id.btnLogoutToolbar).setOnClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             showLogoutConfirmation()
         }
 
-        findViewById<android.widget.ImageView>(R.id.btnProfileToolbar).setOnClickListener {
+        findViewById<FrameLayout>(R.id.btnProfileToolbar).setOnClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             startActivity(Intent(this, ProfileActivity::class.java))
         }
 
         findViewById<FrameLayout>(R.id.btnNotificationsToolbar).setOnClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             startActivity(Intent(this, UpdatesActivity::class.java))
-            badge.visibility = android.view.View.GONE
+            badge.visibility = View.GONE
             // Fetch current count to 'clear' notifications
             database.child("room_messages").get().addOnSuccessListener { 
                 lastMessageCount = it.childrenCount.toInt()
@@ -84,10 +89,6 @@ class StudyHubActivity : AppCompatActivity() {
         val cardPlanner = findViewById<MaterialCardView>(R.id.cardPlanner)
         val cardNotify = findViewById<MaterialCardView>(R.id.cardNotifications)
         
-        cardNotify.setOnClickListener {
-            badge.visibility = android.view.View.GONE
-            startActivity(Intent(this, UpdatesActivity::class.java))
-        }
         val tvBannerTitle = findViewById<TextView>(R.id.tvBannerTitle)
         val tvBannerText = findViewById<TextView>(R.id.tvBannerText)
         
@@ -100,26 +101,31 @@ class StudyHubActivity : AppCompatActivity() {
         val btnPrivateChat = findViewById<com.google.android.material.button.MaterialButton>(R.id.btnPrivateChat)
 
         btnEnterRoom.setOnClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             val intent = Intent(this, StudyRoomActivity::class.java)
             startActivity(intent)
         }
 
         btnPrivateChat.setOnClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             val intent = Intent(this, UsersActivity::class.java)
             startActivity(intent)
         }
 
         cardPdf.setOnClickListener {
-            // Open full PDF Notes Activity
-            startActivity(Intent(this, PdfNotesActivity::class.java))
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+            // Functionality: Open PDF Picker
+            pdfPicker.launch("application/pdf")
         }
 
         cardPlanner.setOnClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             // Functionality: Open Planner Activity
             startActivity(Intent(this, PlannerActivity::class.java))
         }
 
         cardNotify.setOnClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             // Functional: Execute a 'Check-In' and show motivation
             val quote = quotes.random()
             AlertDialog.Builder(this)

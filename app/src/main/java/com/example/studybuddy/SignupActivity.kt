@@ -2,6 +2,7 @@ package com.example.studybuddy
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.HapticFeedbackConstants
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.EditText
@@ -44,7 +45,10 @@ class SignupActivity : AppCompatActivity() {
             tvLoginRedirect
         )
 
-        btnBack.setOnClickListener { finish() }
+        btnBack.setOnClickListener { 
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+            finish() 
+        }
 
         // Setup Course List Adapter
         val courses = resources.getStringArray(R.array.course_list)
@@ -52,6 +56,7 @@ class SignupActivity : AppCompatActivity() {
         etCourse.setAdapter(adapter)
 
         btnCreate.setOnClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             val name = etFullName.text.toString().trim()
             val email = etEmail.text.toString().trim()
             val password = etPassword.text.toString().trim()
@@ -100,6 +105,7 @@ class SignupActivity : AppCompatActivity() {
         }
 
         tvLoginRedirect.setOnClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
         }

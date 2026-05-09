@@ -2,6 +2,7 @@ package com.example.studybuddy
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -28,7 +29,10 @@ class UpdatesActivity : AppCompatActivity() {
         setContentView(R.layout.activity_updates)
 
         val toolbar = findViewById<MaterialToolbar>(R.id.updatesToolbar)
-        toolbar.setNavigationOnClickListener { finish() }
+        toolbar.setNavigationOnClickListener { 
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+            finish() 
+        }
 
         val rvUpdates = findViewById<RecyclerView>(R.id.rvUpdates)
         
@@ -125,7 +129,10 @@ class UpdatesActivity : AppCompatActivity() {
             }
             holder.icon.setImageResource(iconRes)
 
-            holder.itemView.setOnClickListener { onClick(item) }
+            holder.itemView.setOnClickListener { 
+                it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+                onClick(item) 
+            }
         }
 
         override fun getItemCount() = list.size

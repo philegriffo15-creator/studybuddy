@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.media.MediaPlayer
 import android.view.Gravity
+import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -100,6 +101,7 @@ class MessageAdapter(
 
         // Set click and long click on the container and the text message
         val longClickListener = View.OnLongClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
             try {
                 showMessageOptions(holder.itemView.context, msg)
             } catch (e: Exception) {
@@ -149,6 +151,7 @@ class MessageAdapter(
                 holder.ivImage.visibility = View.VISIBLE
                 Glide.with(holder.itemView.context).load(msg.imageUrl).into(holder.ivImage)
                 holder.ivImage.setOnClickListener {
+                    it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
                     if (holder.itemView.context is AppCompatActivity) {
                         val activity = holder.itemView.context as AppCompatActivity
                         val intent = Intent(activity, ImageDetailActivity::class.java)
@@ -164,6 +167,7 @@ class MessageAdapter(
             "audio" -> {
                 holder.layoutAudio.visibility = View.VISIBLE
                 holder.layoutAudio.setOnClickListener {
+                    it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
                     playAudio(msg.audioUrl, holder.ivPlayPause)
                 }
             }
@@ -171,6 +175,7 @@ class MessageAdapter(
                 holder.layoutPdf.visibility = View.VISIBLE
                 holder.tvPdfName.text = msg.pdfName ?: "PDF Document"
                 holder.layoutPdf.setOnClickListener {
+                    it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
                     val intent = Intent(Intent.ACTION_VIEW, android.net.Uri.parse(msg.pdfUrl))
                     holder.itemView.context.startActivity(intent)
                 }
@@ -178,6 +183,7 @@ class MessageAdapter(
         }
 
         holder.itemView.setOnLongClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
             try {
                 showMessageOptions(holder.itemView.context, msg)
             } catch (e: Exception) {
@@ -193,12 +199,14 @@ class MessageAdapter(
 
         // REPLY FUNCTION
         view.findViewById<View>(R.id.optionReply)?.setOnClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             onMessageAction(message, "reply")
             dialog.dismiss()
         }
 
         // EDIT FUNCTION
         view.findViewById<View>(R.id.optionEdit)?.setOnClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             if (message.sender == currentUid && message.type == "text") {
                 onMessageAction(message, "edit")
             } else {
@@ -209,12 +217,14 @@ class MessageAdapter(
 
         // FORWARD FUNCTION
         view.findViewById<View>(R.id.optionForward)?.setOnClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             onMessageAction(message, "forward")
             dialog.dismiss()
         }
 
         // PIN FUNCTION
         view.findViewById<View>(R.id.optionPin)?.setOnClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             database.parent?.child("pinnedMessage")?.setValue(message.messageId)
             Toast.makeText(context, "Message pinned", Toast.LENGTH_SHORT).show()
             dialog.dismiss()
@@ -222,6 +232,7 @@ class MessageAdapter(
 
         // COPY FUNCTION
         view.findViewById<View>(R.id.optionCopy)?.setOnClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             val textToCopy = message.message ?: message.pdfName ?: "Media Message"
             val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             val clip = ClipData.newPlainText("message", textToCopy)
@@ -232,6 +243,7 @@ class MessageAdapter(
 
         // TRANSLATE FUNCTION
         view.findViewById<View>(R.id.optionTranslate)?.setOnClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             if (message.type == "text" && !message.message.isNullOrEmpty()) {
                 Toast.makeText(context, "Translating: ${message.message?.take(20)}...", Toast.LENGTH_SHORT).show()
                 // Placeholder for translation logic
@@ -243,6 +255,7 @@ class MessageAdapter(
 
         // UNSEND (DELETE) FUNCTION
         view.findViewById<View>(R.id.optionUnsend)?.setOnClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             if (message.sender == currentUid && message.messageId != null) {
                 database.child(message.messageId).removeValue().addOnSuccessListener {
                     Toast.makeText(context, "Message unsent", Toast.LENGTH_SHORT).show()
@@ -259,6 +272,7 @@ class MessageAdapter(
 
         reactionIds.forEachIndexed { index, id ->
             view.findViewById<TextView>(id)?.setOnClickListener {
+                it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
                 if (message.messageId != null) {
                     database.child(message.messageId).child("reaction").setValue(emojis[index])
                 }
@@ -266,7 +280,6 @@ class MessageAdapter(
             }
         }
 
-        // Add more reactions (like a full keypad)
         // Add more reactions (like a full keypad)
         val reactionsContainer = view.findViewById<View>(R.id.reactLike).parent as? ViewGroup
         if (reactionsContainer != null) {
@@ -279,6 +292,7 @@ class MessageAdapter(
                 setBackgroundResource(android.R.drawable.list_selector_background)
             }
             btnMoreReactions.setOnClickListener {
+                it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
                 dialog.dismiss()
                 showFullEmojiPicker(context, message)
             }
@@ -318,7 +332,8 @@ class MessageAdapter(
             }
         }
         
-        gridView.setOnItemClickListener { _, _, position, _ ->
+        gridView.setOnItemClickListener { _, view, position, _ ->
+            view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             if (message.messageId != null) {
                 database.child(message.messageId).child("reaction").setValue(emojis[position])
             }

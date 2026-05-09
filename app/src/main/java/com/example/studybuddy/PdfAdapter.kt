@@ -1,5 +1,6 @@
 package com.example.studybuddy
 
+import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -34,8 +35,14 @@ class PdfAdapter(
         val format = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
         holder.tvDate.text = format.format(date)
 
-        holder.itemView.setOnClickListener { onItemClick(pdf) }
-        holder.btnDownload.setOnClickListener { onDownloadClick(pdf) }
+        holder.itemView.setOnClickListener { 
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+            onItemClick(pdf) 
+        }
+        holder.btnDownload.setOnClickListener { 
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+            onDownloadClick(pdf) 
+        }
     }
 
     override fun getItemCount(): Int = pdfList.size

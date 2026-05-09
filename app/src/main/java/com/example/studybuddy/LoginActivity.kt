@@ -2,6 +2,7 @@ package com.example.studybuddy
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.HapticFeedbackConstants
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
@@ -37,9 +38,13 @@ class LoginActivity : AppCompatActivity() {
             tvSignupRedirect
         )
 
-        btnBack.setOnClickListener { finish() }
+        btnBack.setOnClickListener { 
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+            finish() 
+        }
 
         btnLogin.setOnClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             val email = etEmail.text.toString().trim()
             val password = etPassword.text.toString().trim()
 
@@ -60,6 +65,7 @@ class LoginActivity : AppCompatActivity() {
         }
 
         tvSignupRedirect.setOnClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             startActivity(Intent(this, SignupActivity::class.java))
             finish()
         }

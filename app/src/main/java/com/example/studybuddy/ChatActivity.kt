@@ -8,6 +8,7 @@ import android.media.MediaRecorder
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.HapticFeedbackConstants
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -71,6 +72,7 @@ class ChatActivity : AppCompatActivity() {
         val btnJoinRoom = findViewById<com.google.android.material.button.MaterialButton>(R.id.joinRoomButton)
         
         btnJoinRoom.setOnClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             val intent = Intent(this, StudyRoomActivity::class.java)
             startActivity(intent)
         }
@@ -84,12 +86,14 @@ class ChatActivity : AppCompatActivity() {
         val layoutSendVoice = findViewById<View>(R.id.layoutSendVoice)
 
         layoutCancel.setOnClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             if (isRecording) {
                 cancelRecording()
             }
         }
 
         layoutSendVoice.setOnClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             if (isRecording) {
                 stopRecording()
                 uploadAudio()
@@ -99,8 +103,14 @@ class ChatActivity : AppCompatActivity() {
         val btnAudioCall = findViewById<ImageButton>(R.id.btnAudioCall)
         val btnVideoCall = findViewById<ImageButton>(R.id.btnVideoCall)
 
-        btnAudioCall.setOnClickListener { startCall("audio", receiverUid) }
-        btnVideoCall.setOnClickListener { startCall("video", receiverUid) }
+        btnAudioCall.setOnClickListener { 
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+            startCall("audio", receiverUid) 
+        }
+        btnVideoCall.setOnClickListener { 
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+            startCall("video", receiverUid) 
+        }
 
         // Fetch current user info
         currentUid?.let { uid ->
@@ -111,34 +121,10 @@ class ChatActivity : AppCompatActivity() {
             }
         }
 
-        // Typing indicator removed as requested
-        /*
-        messageBox.addTextChangedListener(object : android.text.TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                if (chatRoomId != null) {
-                    FirebaseDatabase.getInstance().getReference("chats").child(chatRoomId!!).child("typing").child(currentUid ?: "").setValue(!s.isNullOrEmpty())
-                }
-            }
-            override fun afterTextChanged(s: android.text.Editable?) {}
-        })
-
-        database.parent?.child("typing")?.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                var someoneTyping = false
-                for (child in snapshot.children) {
-                    if (child.key != currentUid && child.getValue(Boolean::class.java) == true) {
-                        someoneTyping = true
-                        break
-                    }
-                }
-                typingIndicator.visibility = if (someoneTyping) View.VISIBLE else View.GONE
-            }
-            override fun onCancelled(error: DatabaseError) {}
-        })
-        */
-
-        btnBack.setOnClickListener { finish() }
+        btnBack.setOnClickListener { 
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+            finish() 
+        }
         speechToTextHelper = SpeechToTextHelper(this, messageBox)
 
         messageAdapter = MessageAdapter(messageList, "chats/${chatRoomId ?: "default"}") { msg, action ->
@@ -174,6 +160,7 @@ class ChatActivity : AppCompatActivity() {
         androidx.recyclerview.widget.ItemTouchHelper(swipeToReplyCallback).attachToRecyclerView(rvMessages)
 
         btnCancelReply.setOnClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             replyingToMessage = null
             replyLayout.visibility = View.GONE
         }
@@ -193,6 +180,7 @@ class ChatActivity : AppCompatActivity() {
         })
 
         btnSend.setOnClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             if (recordedAudioUri != null) {
                 uploadAudio()
             } else {
@@ -223,6 +211,7 @@ class ChatActivity : AppCompatActivity() {
         }
 
         btnImage.setOnClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             val options = arrayOf("Image", "PDF")
             androidx.appcompat.app.AlertDialog.Builder(this)
                 .setTitle("Select Attachment Type")
@@ -236,10 +225,11 @@ class ChatActivity : AppCompatActivity() {
                 }.show()
         }
 
-        // Double tap for mic
+        // Optimized tap window for mic
         btnMic.setOnClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             val clickTime = System.currentTimeMillis()
-            if (clickTime - lastClickTime < 500) {
+            if (clickTime - lastClickTime < 300) { // Reduced window
                 if (!isRecording) {
                     if (checkPermissions()) startRecording() else requestPermissions()
                 } else {

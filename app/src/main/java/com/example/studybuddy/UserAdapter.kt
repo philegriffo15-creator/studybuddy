@@ -1,5 +1,6 @@
 package com.example.studybuddy
 
+import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,7 +26,10 @@ class UserAdapter(
         val user = userList[position]
         holder.tvName.text = user.fullName
         holder.tvCourse.text = user.course
-        holder.itemView.setOnClickListener { onUserClick(user) }
+        holder.itemView.setOnClickListener { 
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+            onUserClick(user) 
+        }
     }
 
     override fun getItemCount(): Int = userList.size

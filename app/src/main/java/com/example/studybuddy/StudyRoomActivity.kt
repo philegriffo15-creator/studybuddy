@@ -8,6 +8,7 @@ import android.media.MediaRecorder
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.HapticFeedbackConstants
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -49,7 +50,7 @@ class StudyRoomActivity : AppCompatActivity() {
     private var recordedAudioUri: android.net.Uri? = null
 
     private var lastClickTime: Long = 0
-    private var currentChannel = "course" // Default to free course chat
+    private var currentChannel = "" // Start empty to force first switch
     private var replyingToMessage: Message? = null
     private var editingMessage: Message? = null
     private var recordingTimer: java.util.Timer? = null
@@ -78,12 +79,14 @@ class StudyRoomActivity : AppCompatActivity() {
         val layoutSendVoice = findViewById<View>(R.id.layoutSendVoice)
 
         layoutCancel.setOnClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             if (isRecording) {
                 cancelRecording(btnMic)
             }
         }
 
         layoutSendVoice.setOnClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             if (isRecording) {
                 stopRecording(btnMic)
                 uploadAudioAndSend()
@@ -98,27 +101,12 @@ class StudyRoomActivity : AppCompatActivity() {
         val btnAudioCall = findViewById<ImageButton>(R.id.btnRoomAudioCall)
         val btnVideoCall = findViewById<ImageButton>(R.id.btnRoomVideoCall)
 
-        btnBack.setOnClickListener { finish() }
+        btnBack.setOnClickListener { 
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+            finish() 
+        }
         tvTopic.text = "Study Session"
         speechToTextHelper = SpeechToTextHelper(this, etMessage)
-
-        // Typing indicator removed as requested
-        /*
-        etMessage.addTextChangedListener(object : android.text.TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                database?.child("typing")?.child(currentUser ?: "")?.setValue(!s.isNullOrEmpty())
-            }
-            override fun afterTextChanged(s: android.text.Editable?) {}
-        })
-
-        database?.child("typing")?.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                // Future: Add typing UI to StudyRoom if needed
-            }
-            override fun onCancelled(error: DatabaseError) {}
-        })
-        */
 
         // Initial setup for RecyclerViews
         messageAdapter = MessageAdapter(messageList, "room_messages") { msg, action ->
@@ -163,6 +151,7 @@ class StudyRoomActivity : AppCompatActivity() {
         androidx.recyclerview.widget.ItemTouchHelper(swipeToReplyCallback).attachToRecyclerView(rvChat)
 
         btnCancelReply.setOnClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             replyingToMessage = null
             replyLayout.visibility = View.GONE
         }
@@ -190,18 +179,13 @@ class StudyRoomActivity : AppCompatActivity() {
         // Channel Toggling with Payment Check
         toggleGroup.addOnButtonCheckedListener { group, checkedId, isChecked ->
             if (isChecked) {
+                group.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
                 if (checkedId == R.id.btnChannelAll) {
                     if (hasGlobalAccess) {
                         switchChannel("global")
                     } else {
-                        // Show M-Pesa dialog
                         showPaymentDialog()
-                        
-                        // Temporarily uncheck Global to prevent entering without paying
-                        // and switch back to course
-                        group.post {
-                            group.check(R.id.btnChannelCourse)
-                        }
+                        group.post { group.check(R.id.btnChannelCourse) }
                     }
                 } else if (checkedId == R.id.btnChannelCourse) {
                     switchChannel("course")
@@ -210,6 +194,7 @@ class StudyRoomActivity : AppCompatActivity() {
         }
 
         btnSend.setOnClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             if (recordedAudioUri != null) {
                 uploadAudioAndSend()
             } else {
@@ -232,7 +217,7 @@ class StudyRoomActivity : AppCompatActivity() {
                         database?.push()?.setValue(msg)
                     }
                     etMessage.text.clear()
-                    recordedAudioUri = null // Reset audio state so next message can be text
+                    recordedAudioUri = null
                     replyingToMessage = null
                     findViewById<View>(R.id.replyLayout).visibility = View.GONE
                 }
@@ -240,6 +225,7 @@ class StudyRoomActivity : AppCompatActivity() {
         }
 
         btnAttachment.setOnClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             val options = arrayOf("Image", "PDF")
             androidx.appcompat.app.AlertDialog.Builder(this)
                 .setTitle("Select Attachment Type")
@@ -253,10 +239,11 @@ class StudyRoomActivity : AppCompatActivity() {
                 }.show()
         }
 
-        // Double Tap Mic Recording
+        // Optimized Tap Logic for Mic
         btnMic.setOnClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
             val clickTime = System.currentTimeMillis()
-            if (clickTime - lastClickTime < 500) {
+            if (clickTime - lastClickTime < 300) { // Reduced window for faster double-tap response
                 if (!isRecording) {
                     if (checkPermissions()) startRecording(btnMic) else requestPermissions()
                 } else {
@@ -268,12 +255,23 @@ class StudyRoomActivity : AppCompatActivity() {
             lastClickTime = clickTime
         }
 
-        btnAudioCall.setOnClickListener { startGroupCall("audio") }
-        btnVideoCall.setOnClickListener { startGroupCall("video") }
-        cardParticipants.setOnClickListener { showParticipantsDialog() }
+        btnAudioCall.setOnClickListener { 
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+            startGroupCall("audio") 
+        }
+        btnVideoCall.setOnClickListener { 
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+            startGroupCall("video") 
+        }
+        cardParticipants.setOnClickListener { 
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+            showParticipantsDialog() 
+        }
     }
 
     private fun switchChannel(type: String) {
+        if (currentChannel == type) return // Response optimization: Avoid redundant reloads
+        
         currentChannel = type
         val sanitizedCourse = userCourse?.replace(" ", "_") ?: "General"
         
@@ -289,24 +287,18 @@ class StudyRoomActivity : AppCompatActivity() {
             "room_participants/global"
         }
         
-        // 1. Remove old message listener
         database?.removeEventListener(messageListener)
-        
-        // 2. Unregister from old participant path
         currentParticipantsRef?.child(currentUser ?: "")?.removeValue()
         currentParticipantsRef?.removeEventListener(participantListener)
 
-        // 3. Setup new paths
         database = FirebaseDatabase.getInstance().getReference(msgPath)
         currentParticipantsRef = FirebaseDatabase.getInstance().getReference(partPath)
 
-        // 4. Register in new room
         currentUser?.let { uid ->
             currentParticipantsRef?.child(uid)?.setValue(true)
             currentParticipantsRef?.child(uid)?.onDisconnect()?.removeValue()
         }
 
-        // 5. Load data
         messageAdapter.updatePath(msgPath)
         loadMessages()
         loadParticipants(participantAdapter)
@@ -388,12 +380,10 @@ class StudyRoomActivity : AppCompatActivity() {
             .create()
         dialog.show()
 
-        // Phase 1: Requesting STK Push
         android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
             if (!isFinishing && !isDestroyed) {
                 dialog.dismiss()
                 
-                // Show a PIN entry dialog to simulate a real M-Pesa prompt
                 val pinEntryView = layoutInflater.inflate(R.layout.dialog_mpesa_pin, null)
                 val etPin = pinEntryView.findViewById<EditText>(R.id.etMpesaPin)
 
@@ -401,7 +391,7 @@ class StudyRoomActivity : AppCompatActivity() {
                     .setTitle("M-PESA SIMULATOR")
                     .setView(pinEntryView)
                     .setCancelable(false)
-                    .setPositiveButton("Enter PIN", null) // Set to null to override click behavior
+                    .setPositiveButton("Enter PIN", null)
                     .setNegativeButton("Cancel") { d, _ ->
                         Toast.makeText(this, "Transaction cancelled by user", Toast.LENGTH_SHORT).show()
                         d.dismiss()
@@ -410,8 +400,8 @@ class StudyRoomActivity : AppCompatActivity() {
 
                 pinDialog.show()
 
-                // Override the button to prevent auto-dismiss if PIN is empty
                 pinDialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                    it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
                     val pin = etPin.text.toString()
                     if (pin == "1234") {
                         pinDialog.dismiss()
@@ -433,13 +423,9 @@ class StudyRoomActivity : AppCompatActivity() {
             .create()
         dialog.show()
 
-        // Phase 3: "Server-side" truth check (Simulating checking the M-Pesa API)
         android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
             if (!isFinishing && !isDestroyed) {
                 dialog.dismiss()
-                
-                // Simulation logic: In a real app, this would be a Firebase Function checking an M-Pesa Callback
-                // For this demo, we "verify" success after a delay.
                 currentUser?.let { uid ->
                     usersRef.child(uid).child("hasGlobalAccess").setValue(true).addOnSuccessListener {
                         hasGlobalAccess = true
@@ -535,7 +521,6 @@ class StudyRoomActivity : AppCompatActivity() {
         btn.setColorFilter(Color.WHITE)
         recordedAudioUri = android.net.Uri.fromFile(File(audioFilePath))
         Toast.makeText(this, "Voice recorded! Click the send button to share.", Toast.LENGTH_SHORT).show()
-        // Change send button icon to indicate voice is ready
         findViewById<FloatingActionButton>(R.id.btnSend).setImageResource(android.R.drawable.ic_menu_send)
     }
 
@@ -636,7 +621,6 @@ class StudyRoomActivity : AppCompatActivity() {
     }
 
     private fun showParticipantsDialog() {
-        // Now handled by horizontal bar, but keeping this as a backup full list view
         val dialog = BottomSheetDialog(this)
         val view = layoutInflater.inflate(R.layout.bottom_sheet_participants, null)
         val rvParticipants = view.findViewById<RecyclerView>(R.id.rvParticipants)

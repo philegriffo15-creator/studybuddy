@@ -79,11 +79,13 @@
 
     <com.google.android.material.button.MaterialButtonToggleGroup
         android:id="@+id/toggleGroupChannel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_width="0dp"
+        android:layout_height="64dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginHorizontal="24dp"
         app:singleSelection="true"
         app:checkedButton="@+id/btnChannelAll"
+        app:cornerRadius="32dp"
         app:layout_constraintTop_toBottomOf="@id/roomHeader"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -91,22 +93,42 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnChannelAll"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"
             android:text="Global (Premium)"
             android:textColor="#FFFFFF"
-            app:strokeColor="#FFD700"
+            android:textAllCaps="false"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:backgroundTint="#1F2440"
+            app:strokeColor="#448AFF"
+            app:strokeWidth="2dp"
             app:icon="@android:drawable/ic_lock_idle_lock"
-            app:iconTint="#FFD700" />
+            app:iconTint="#448AFF" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnChannelCourse"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"
             android:text="My Course (Free)"
             android:textColor="#FFFFFF"
-            app:strokeColor="#4CAF50" />
+            android:textAllCaps="false"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:backgroundTint="#1F2440"
+            app:strokeColor="#9C27B0"
+            app:strokeWidth="2dp" />
     </com.google.android.material.button.MaterialButtonToggleGroup>
 
     <!-- Participant Section -->
@@ -115,7 +137,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="20dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="24dp"
         app:cardBackgroundColor="@color/b_card_bg"
         app:cardCornerRadius="20dp"
         app:strokeColor="@color/b_stroke_color"

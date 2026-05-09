@@ -1,5 +1,6 @@
 package com.example.studybuddy
 
+import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -28,7 +29,10 @@ class ParticipantAdapter(
         } else {
             holder.ivAvatar.setImageResource(R.drawable.ic_launcher_foreground)
         }
-        holder.itemView.setOnClickListener { onItemClick(user) }
+        holder.itemView.setOnClickListener { 
+            it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+            onItemClick(user) 
+        }
     }
 
     override fun getItemCount(): Int = participantList.size
