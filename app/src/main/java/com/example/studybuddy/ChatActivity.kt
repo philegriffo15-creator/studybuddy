@@ -275,6 +275,7 @@ class ChatActivity : AppCompatActivity() {
         val intent = Intent(this, CallActivity::class.java).apply {
             putExtra("CALL_TYPE", type)
             putExtra("RECEIVER_UID", receiverUid)
+            putExtra("CALLER_NAME", currentUserName)
         }
         startActivity(intent)
     }

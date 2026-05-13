@@ -77,6 +77,17 @@
             android:gravity="center">
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/btnSpeaker"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="12dp"
+                android:src="@drawable/ic_speaker"
+                app:backgroundTint="#44FFFFFF"
+                app:elevation="0dp"
+                app:fabSize="mini"
+                app:tint="#FFFFFF" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/btnMute"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

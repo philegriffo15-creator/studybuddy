@@ -18,6 +18,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Studybuddy">
         <activity
+            android:name=".IncomingCallActivity"
+            android:exported="false"
+            android:launchMode="singleTop" />
+        <activity
             android:name=".PdfNotesActivity"
             android:exported="false" />
         <activity

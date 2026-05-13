@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#121212">
+
+    <ImageView
+        android:id="@+id/ivCallerProfile"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginTop="100dp"
+        android:src="@drawable/ic_launcher_foreground"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/tvCallerName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="Incoming Call"
+        android:textColor="#FFFFFF"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/ivCallerProfile"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/tvCallType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="StudyBuddy Video Call"
+        android:textColor="#BBBBBB"
+        android:textSize="16sp"
+        app:layout_constraintTop_toBottomOf="@id/tvCallerName"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnAccept"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="80dp"
+        android:layout_marginStart="60dp"
+        android:src="@drawable/ic_mic"
+        app:backgroundTint="#4CAF50"
+        app:fabSize="normal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:tint="#FFFFFF" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Accept"
+        android:textColor="#FFFFFF"
+        app:layout_constraintTop_toBottomOf="@id/btnAccept"
+        app:layout_constraintStart_toStartOf="@id/btnAccept"
+        app:layout_constraintEnd_toEndOf="@id/btnAccept" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnDecline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="80dp"
+        android:layout_marginEnd="60dp"
+        android:src="@drawable/ic_end_call_insta"
+        app:backgroundTint="#F44336"
+        app:fabSize="normal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:tint="#FFFFFF" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Decline"
+        android:textColor="#FFFFFF"
+        app:layout_constraintTop_toBottomOf="@id/btnDecline"
+        app:layout_constraintStart_toStartOf="@id/btnDecline"
+        app:layout_constraintEnd_toEndOf="@id/btnDecline" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

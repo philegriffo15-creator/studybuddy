@@ -153,6 +153,8 @@ class StudyHubActivity : AppCompatActivity() {
 
         if (auth.currentUser == null) {
             goToLogin()
+        } else {
+            CallManager.startListening(applicationContext)
         }
     }
 
